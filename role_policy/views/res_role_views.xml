@@ -45,6 +45,9 @@
             <field name="code"/>
           </group>
           <notebook>
+            <page string="Menu Items" id="menu_ids">
+              <field name="menu_ids"/>
+            </page>
             <page string="View Modifier Rules" id="modifier_rule_ids">
               <field name="modifier_rule_ids" context="{'active_test': False}"/>
             </page>

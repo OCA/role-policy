@@ -19,6 +19,13 @@ class ResRole(models.Model):
         inverse_name="role_id",
         string="Web Modifier Rules",
     )
+    menu_ids = fields.Many2many(
+        comodel_name="ir.ui.menu",
+        relation="res_role_menu_rel",
+        column1="role_id",
+        column2="menu_id",
+        string="Menu Items",
+    )
     user_ids = fields.Many2many(
         comodel_name="res.users",
         relation="res_role_users_rel",

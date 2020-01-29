@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <data noupdate="1">
+
+    <record id="contacts.res_partner_menu_config" model="ir.ui.menu">
+      <field name="role_ids"
+             eval="[(6, 0, [ref('role_dm')])]"/>
+    </record>
+
+  </data>
+</odoo>
