@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_res_role_group_erp_manager,res_role group_erp_manager,model_res_role,base.group_erp_manager,1,1,1,1
+access_res_role_group_user,res_role group_user,model_res_role,base.group_user,1,0,0,0
+access_web_modifier_rule_group_erp_manager,web_modifier_rule group_erp_manager,model_web_modifier_rule,base.group_erp_manager,1,1,1,1
+access_web_modifier_rule_group_user,web_modifier_rule group_user,model_web_modifier_rule,base.group_user,1,0,0,0
+access_security_policy_tag_group_erp_manager,security_policy_tag group_erp_manager,model_security_policy_tag,base.group_erp_manager,1,1,1,1
+access_security_policy_tag_group_user,security_policy_tag group_user,model_security_policy_tag,base.group_user,1,0,0,0
