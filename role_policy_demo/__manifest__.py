@@ -2,8 +2,8 @@
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
 {
-    "name": "Role Policy",
-    "version": "13.0.0.0.2",
+    "name": "Role Policy Demo",
+    "version": "13.0.0.0.3",
     "license": "AGPL-3",
     "author": "Noviat",
     "website": "http://www.noviat.com",

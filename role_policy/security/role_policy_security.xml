@@ -9,6 +9,13 @@
       <field name="domain_force">['|', ('company_id', '=', False), ('company_id', '=', company_id)]</field>
     </record>
 
+    <record id="res_role_acl_comp_rule" model="ir.rule">
+      <field name="name">Role ACL</field>
+      <field name="model_id" ref="model_res_role_acl"/>
+      <field name="global" eval="True"/>
+      <field name="domain_force">['|', ('company_id', '=', False), ('company_id', '=', company_id)]</field>
+    </record>
+
     <record id="web_modifier_rule_comp_rule" model="ir.rule">
       <field name="name">View Modifier</field>
       <field name="model_id" ref="model_web_modifier_rule"/>

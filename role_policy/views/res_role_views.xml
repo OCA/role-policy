@@ -41,12 +41,29 @@
             </button>
           </div>
           <group name="main">
-            <field name="name"/>
-            <field name="code"/>
+            <group name="main-left">
+              <field name="name"/>
+              <field name="code"/>
+            </group>
+            <group name="main-right">
+              <field name="company_id"/>
+            </group>
           </group>
           <notebook>
+            <page string="Role ACLs" id="acl_ids">
+              <field name="acl_ids"/>
+            </page>
             <page string="Menu Items" id="menu_ids">
-              <field name="menu_ids"/>
+              <field name="menu_ids" context="{'ir.ui.menu.full_list': True}"/>
+            </page>
+            <page string="Window Actions" id="act_window_ids">
+              <field name="act_window_ids"/>
+            </page>
+            <page string="Server Actions" id="act_server_ids">
+              <field name="act_server_ids"/>
+            </page>
+            <page string="Report Actions" id="act_server_ids">
+              <field name="act_report_ids"/>
             </page>
             <page string="View Modifier Rules" id="modifier_rule_ids">
               <field name="modifier_rule_ids" context="{'active_test': False}"/>

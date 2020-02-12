@@ -20,6 +20,5 @@ class IrUiMenu(models.Model):
         visible_ids = super()._visible_menu_ids(debug=debug)
         menus = self.browse(visible_ids)
         roles = self.env.user.role_ids
-        menus = menus.filtered(
-            lambda menu: not menu.role_ids or menu.role_ids & roles)
+        menus = menus.filtered(lambda menu: not menu.role_ids or menu.role_ids & roles)
         return set(menus.ids)

@@ -37,7 +37,9 @@ class WebModifierRule(models.Model):
         "Rule conflicts may exist for users with "
         "multiple roles or inconsistent role definitions.",
     )
-    view_id = fields.Many2one(comodel_name="ir.ui.view")
+    view_id = fields.Many2one(
+        comodel_name="ir.ui.view", domain="[('model', '=', model)]"
+    )
     view_type = fields.Selection(selection="_selection_view_type")
     element = fields.Char(
         help="Specify the view element. E.g."
