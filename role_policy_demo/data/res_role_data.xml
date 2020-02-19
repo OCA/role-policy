@@ -6,6 +6,18 @@
       <field name="name">Data Maintenance</field>
       <field name="code">DM</field>
       <field name="sequence">1</field>
+      <field name="acl_ids"
+             eval="[(0, 0, {
+               'model_id': ref('base.model_res_partner'),
+               'perm_read': True,
+               'perm_write': True,
+               'perm_create': True,
+               'perm_unlink': True,
+             })]"/>
+      <field name="menu_ids"
+             eval="[(6, 0, [ref('contacts.res_partner_menu_config')])]"/>
+      <field name="act_window_ids"
+             eval="[(6, 0, [ref('base.action_partner_merge')])]"/>
     </record>
 
     <record id="role_cso" model="res.role">

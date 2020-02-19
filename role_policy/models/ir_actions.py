@@ -2,7 +2,6 @@
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
 import logging
-from collections import defaultdict
 
 from odoo import api, fields, models
 
@@ -12,22 +11,20 @@ _logger = logging.getLogger(__name__)
 class IrActionsActions(models.Model):
     _inherit = "ir.actions.actions"
 
-    @api.model
-    def get_bindings(self, model_name):
-        res = super().get_bindings(model_name)
-        user_roles = self.env.user.role_ids
-        res_roles = defaultdict(list)
-        for k in res:
-            res_roles[k] = []
-            for v in res[k]:
-                if not v.get("role_ids"):
-                    res_roles[k].append(v)
-                    continue
-                for rid in user_roles.ids:
-                    if rid in v["role_ids"]:
-                        res_roles[k].append(v)
-                        continue
-        return res_roles
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            if "role_ids" in vals:
+                roles = self.env["res.role"].browse(vals["role_ids"][0][2])
+                vals["groups_id"] = [(6, 0, [x.id for x in roles.mapped("group_id")])]
+        return super().create(vals_list)
+
+    def write(self, vals):
+        res = super().write(vals)
+        if "role_ids" in vals:
+            for action in self:
+                action.groups_id = action.role_ids.mapped("group_id")
+        return res
 
 
 class IrActionsActWindow(models.Model):

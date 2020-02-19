@@ -15,19 +15,17 @@ class IrUiMenu(models.Model):
         string="Roles",
     )
 
-    @api.model
-    def _visible_menu_ids(self, debug=False):
-        """
-        TOOO:
-        We currently do not take into account yet roles on actions.
-        Hence an role on e.g. a window action will not remove the menu
-        entry like done for groups.
-        We could implement this via an extra filter in this method
-        or alternatively add/remove the 'role groups' to action when we
-        add/remove roles on actions.
-        """
-        visible_ids = super()._visible_menu_ids(debug=debug)
-        menus = self.browse(visible_ids)
-        roles = self.env.user.role_ids
-        menus = menus.filtered(lambda menu: not menu.role_ids or menu.role_ids & roles)
-        return set(menus.ids)
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            if "role_ids" in vals:
+                roles = self.env["res.role"].browse(vals["role_ids"][0][2])
+                vals["groups_id"] = [(6, 0, [x.id for x in roles.mapped("group_id")])]
+        return super().create(vals_list)
+
+    def write(self, vals):
+        res = super().write(vals)
+        if "role_ids" in vals:
+            for menu in self:
+                menu.groups_id = menu.role_ids.mapped("group_id")
+        return res

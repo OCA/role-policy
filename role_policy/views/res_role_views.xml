@@ -68,6 +68,12 @@
             <page string="View Modifier Rules" id="modifier_rule_ids">
               <field name="modifier_rule_ids" context="{'active_test': False}"/>
             </page>
+            <page string="Record Rules" id="record_rule_ids">
+              <p>
+                This functionality is planned for a later release.<br/>
+                In the meanwhile define your record rules by using the Role Groups via Settings -> Technical -> Security -> Record Rules.<br/>
+              </p>
+            </page>
             <page string="Users">
               <field name="user_ids" id="user_ids"/>
             </page>

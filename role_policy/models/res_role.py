@@ -77,6 +77,9 @@ class ResRole(models.Model):
     def create(self, vals):
         role = super().create(vals)
         role._create_role_group()
+        for f in ["menu_ids", "act_window_ids", "act_server_ids", "act_report_ids"]:
+            if f in vals and vals[f][0][2]:
+                getattr(role, f).write({"groups_id": [(4, role.group_id.id)]})
         return role
 
     def _create_role_group(self):
@@ -90,16 +93,31 @@ class ResRole(models.Model):
         self.group_id = self.env["res.groups"].create(group_vals)
 
     def write(self, vals):
-        code = vals.get("code")
-        user_ids = vals.get("user_ids")
         for role in self:
-            if code:
-                if role.code != code and role.acl_ids:
+            if vals.get("code"):
+                if role.code != vals["code"] and role.acl_ids:
                     raise UserError(_("You are not allowed to update the code."))
-            if user_ids:
-                role.group_id.write({"users": user_ids})
-        return super().write(vals)
+            if "user_ids" in vals:
+                role.group_id.write({"users": vals["user_ids"]})
+            todo = []
+            for f in ["menu_ids", "act_window_ids", "act_server_ids", "act_report_ids"]:
+                if f in vals:
+                    for entry in vals[f]:
+                        if entry[0] == 6:
+                            getattr(role, f).write(
+                                {"groups_id": [(3, role.group_id.id)]}
+                            )
+                            if entry[2]:
+                                todo.append(f)
+                        else:
+                            raise NotImplementedError
+        res = super().write(vals)
+        for f in todo:
+            getattr(role, f).write({"groups_id": [(4, role.group_id.id)]})
+        return res
 
     def unlink(self):
-        self.mapped("group_id").unlink()
-        return super().unlink()
+        role_groups = self.mapped("group_id")
+        res = super().unlink()
+        role_groups.unlink()
+        return res

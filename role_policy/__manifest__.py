@@ -3,13 +3,14 @@
 
 {
     "name": "Role Policy",
-    "version": "13.0.0.0.5",
+    "version": "13.0.0.1.0",
     "license": "AGPL-3",
     "author": "Noviat",
     "website": "http://www.noviat.com",
     "category": "Tools",
     "depends": ["mail"],
     "external_dependencies": {"python": ["lxml"]},
+    "post_init_hook": "post_init_hook",
     "data": [
         "data/ir_module_category_data.xml",
         "security/ir.model.access.csv",

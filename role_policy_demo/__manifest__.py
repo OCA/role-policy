@@ -3,7 +3,7 @@
 
 {
     "name": "Role Policy Demo",
-    "version": "13.0.0.0.3",
+    "version": "13.0.0.1.0",
     "license": "AGPL-3",
     "author": "Noviat",
     "website": "http://www.noviat.com",
@@ -11,7 +11,6 @@
     "depends": ["role_policy", "contacts"],
     "data": [
         "data/res_role_data.xml",
-        "data/ir_ui_menu_data.xml",
         "data/web_modifier_rule_data.xml",
         "data/res_user_data.xml",
     ],
