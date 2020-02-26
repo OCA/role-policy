@@ -75,22 +75,23 @@ class ResRole(models.Model):
 
     @api.model
     def create(self, vals):
+        role_group = self._create_role_group(vals)
+        vals["group_id"] = role_group.id
         role = super().create(vals)
-        role._create_role_group()
         for f in ["menu_ids", "act_window_ids", "act_server_ids", "act_report_ids"]:
             if f in vals and vals[f][0][2]:
-                getattr(role, f).write({"groups_id": [(4, role.group_id.id)]})
+                getattr(role, f).write({"groups_id": [(4, role_group.id)]})
         return role
 
-    def _create_role_group(self):
+    def _create_role_group(self, vals):
         categ = self.env.ref("role_policy.ir_module_category_role")
         group_vals = {
             "role": True,
-            "name": self.code,
+            "name": vals["code"],
             "category_id": categ.id,
-            "users": [(6, 0, self.user_ids.ids)],
+            "users": vals["user_ids"],
         }
-        self.group_id = self.env["res.groups"].create(group_vals)
+        return self.env["res.groups"].create(group_vals)
 
     def write(self, vals):
         for role in self:
