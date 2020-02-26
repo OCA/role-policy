@@ -121,3 +121,19 @@ class ResRole(models.Model):
         res = super().unlink()
         role_groups.unlink()
         return res
+
+    def export_xls(self):
+        report_file = "role_policy_{}_{}".format(
+            self.code, fields.Date.to_string(fields.Date.today())
+        )
+        report_name = "role_policy.export_xls"
+        report = {
+            "name": _("Role Policy Export"),
+            "type": "ir.actions.report",
+            "report_type": "xlsx",
+            "report_name": report_name,
+            "report_file": report_name,
+            "context": dict(self.env.context, report_file=report_file),
+            "data": {"dynamic_report": True},
+        }
+        return report
