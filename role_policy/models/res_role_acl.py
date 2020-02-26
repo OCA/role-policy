@@ -7,6 +7,8 @@ from odoo import api, fields, models
 
 _logger = logging.getLogger(__name__)
 
+CRUD2FLD = {"c": "perm_create", "r": "perm_read", "u": "perm_write", "d": "perm_unlink"}
+
 
 class ResRoleAcl(models.Model):
     _name = "res.role.acl"
@@ -35,13 +37,14 @@ class ResRoleAcl(models.Model):
         return super().create(vals)
 
     def _create_role_acl(self, vals):
-        crud = self._compute_crud(vals)
         role = self.env["res.role"].browse(vals["role_id"])
-        group = self._compute_group(vals, crud, role)
-        role.group_id.implied_ids += group
-        name = "_".join([role.code, group.name])
-        access = self._compute_access(vals, group)
-        vals.update({"name": name, "group_id": group.id, "access_id": access.id})
+        model = self.env["ir.model"].browse(vals["model_id"])
+        crud = self._compute_crud(vals)
+        acl_group = self._compute_group(model, crud, role)
+        role.group_id.implied_ids += acl_group
+        name = "_".join([role.code, acl_group.name])
+        access = self._compute_access(model, crud, acl_group)
+        vals.update({"name": name, "group_id": acl_group.id, "access_id": access.id})
 
     def write(self, vals):
         self._update_role_acl(vals)
@@ -49,8 +52,27 @@ class ResRoleAcl(models.Model):
 
     def _update_role_acl(self, vals):
         for acl in self:
+            old_acl_group = acl.group_id
             crud = acl._compute_crud(vals)
-            acl._compute_group(vals, crud)
+            model = (
+                vals.get("model_id")
+                and self.env["ir.model"].browse(vals["model_id"])
+                or acl.model_id
+            )
+            acl_group = acl._compute_group(model, crud, acl.role_id)
+            if acl_group != old_acl_group:
+                acl.role_id.group_id.implied_ids = [
+                    (3, old_acl_group.id),
+                    (4, acl_group.id),
+                ]
+                access = self._compute_access(model, crud, acl_group)
+                vals.update(
+                    {
+                        "name": "_".join([acl.role_id.code, acl_group.name]),
+                        "group_id": acl_group.id,
+                        "access_id": access.id,
+                    }
+                )
 
     def _compute_crud(self, vals):
         if "perm_create" in vals:
@@ -68,14 +90,10 @@ class ResRoleAcl(models.Model):
         if "perm_unlink" in vals:
             crud += vals["perm_unlink"] and "d" or ""
         else:
-            crud += self.perm_write and "d" or ""
+            crud += self.perm_unlink and "d" or ""
         return crud
 
-    def _compute_group(self, vals, crud, role):
-        if vals.get("model_id"):
-            model = self.env["ir.model"].browse(vals["model_id"])
-        else:
-            model = self.model_id
+    def _compute_group(self, model, crud, role):
         group_name = "_".join(["role_acl", model.model.replace(".", "_"), crud])
         if role.company_id:
             group_name += "_{}".format(role.company_id.id)
@@ -87,21 +105,12 @@ class ResRoleAcl(models.Model):
             )
         return group
 
-    def _compute_access(self, vals, group):
-        access_name = "acl_{}".format(group.name)
-        access = self.env["ir.model.access"].search([("name", "=", access_name)])
+    def _compute_access(self, model, crud, acl_group):
+        access = self.env["ir.model.access"].search([("name", "=", acl_group.name)])
         if not access:
-            access_vals = {
-                k: vals[k]
-                for k in vals
-                if k in ["perm_read", "perm_write", "perm_create", "perm_unlink"]
-            }
+            access_vals = {CRUD2FLD[k]: True for k in crud}
             access_vals.update(
-                {
-                    "name": access_name,
-                    "model_id": vals["model_id"],
-                    "group_id": group.id,
-                }
+                {"name": acl_group.name, "model_id": model.id, "group_id": acl_group.id}
             )
             access = self.env["ir.model.access"].create(access_vals)
         return access
