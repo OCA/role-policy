@@ -89,7 +89,7 @@ class ResRole(models.Model):
             "role": True,
             "name": vals["code"],
             "category_id": categ.id,
-            "users": vals["user_ids"],
+            "users": vals.get("user_ids"),
         }
         return self.env["res.groups"].create(group_vals)
 
