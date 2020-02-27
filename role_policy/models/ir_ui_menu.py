@@ -18,12 +18,16 @@ class IrUiMenu(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
+            if "groups_id" in vals:
+                del vals["groups_id"]
             if "role_ids" in vals:
                 roles = self.env["res.role"].browse(vals["role_ids"][0][2])
                 vals["groups_id"] = [(6, 0, [x.id for x in roles.mapped("group_id")])]
         return super().create(vals_list)
 
     def write(self, vals):
+        if "groups_id" in vals:
+            del vals["groups_id"]
         res = super().write(vals)
         if "role_ids" in vals:
             for menu in self:
