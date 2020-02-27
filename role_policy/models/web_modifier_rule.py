@@ -90,22 +90,8 @@ class WebModifierRule(models.Model):
         """TODO: add checks on element syntax"""
         pass
 
-    @api.constrains("modifier_invisible")
-    def _check_modifier_invisible(self):
-        if self.modifier_invisible:
-            self._check_modifier(self.modifier_invisible)
-
-    @api.constrains("modifier_readonly")
-    def _check_modifier_readonly(self):
-        if self.modifier_readonly:
-            self._check_modifier(self.modifier_readonly)
-
-    @api.constrains("modifier_required")
-    def _check_modifier_required(self):
-        if self.modifier_required:
-            self._check_modifier(self.modifier_required)
-
-    def _check_modifier(self, modifier):
+    @api.constrains("modifier_invisible", "modifier_readonly", "modifier_required")
+    def _check_modifier(self):
         """TODO: add checks on modifier syntax"""
         pass
 
