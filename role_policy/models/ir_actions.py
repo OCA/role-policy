@@ -2,6 +2,7 @@
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
 import logging
+from collections import defaultdict
 
 from odoo import api, fields, models
 
@@ -14,7 +15,7 @@ class IrActionsActions(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
-            if "groups_id" in vals:
+            if not self.env.context.get("role_policy_init") and "groups_id" in vals:
                 del vals["groups_id"]
             if "role_ids" in vals:
                 roles = self.env["res.role"].browse(vals["role_ids"][0][2])
@@ -22,12 +23,32 @@ class IrActionsActions(models.Model):
         return super().create(vals_list)
 
     def write(self, vals):
-        if "groups_id" in vals:
+        if not self.env.context.get("role_policy_init") and "groups_id" in vals:
             del vals["groups_id"]
         res = super().write(vals)
         if "role_ids" in vals:
             for action in self:
                 action.groups_id = action.role_ids.mapped("group_id")
+        return res
+
+    @api.model
+    def get_bindings(self, model_name):
+        res = super().get_bindings(model_name)
+        admin = self.env.ref("base.user_admin")
+        root = self.env.ref("base.user_root")
+        if self.env.user not in (admin, root):
+            user_roles = self.env.user.role_ids
+            user_groups = user_roles.mapped("group_id")
+            res_roles = defaultdict(list)
+            for k in res:
+                res_roles[k] = []
+                for v in res[k]:
+                    if v.get("groups_id"):
+                        for group_id in v["groups_id"]:
+                            if group_id in user_groups.ids:
+                                res_roles[k].append(v)
+                                continue
+            return res_roles
         return res
 
 

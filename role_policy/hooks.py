@@ -9,7 +9,9 @@ def post_init_hook(cr, registry):
     Remove groups from users, menuitems and actions since the standard groups
     are replaced by role groups when installing this module.
     """
-    env = api.Environment(cr, SUPERUSER_ID, {"active_test": False})
+    env = api.Environment(
+        cr, SUPERUSER_ID, {"active_test": False, "role_policy_init": True}
+    )
     menus = env["ir.ui.menu"].search([])
     menus.write({"groups_id": [(5,)]})
     for act_model in [

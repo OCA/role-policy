@@ -32,6 +32,13 @@ In the export file rights can be added/removed and the result can be reimported 
 From a technical standpoint, this module doesn't make any changes to the Odoo kernel.
 The role groups are used to enforce the security policy.
 
+Default access rights on menus & actions
+----------------------------------------
+
+The standard Odoo approach is to give users access to all menu items and action bindings without a security group.
+This approach is changed by this module.
+Every menu item and action binding must be added explicitely to a role in order to be available for the user.
+
 Web modifier rules
 ------------------
 
@@ -44,6 +51,17 @@ Since complex environments may have a large number of web modifier rules this mo
 Hence loading a new role from Excel may result in screen errors for the concerned users. A sanitize button is available in order to
 check the syntax with autocorrection where feasible.
 
+User Types / Internal User
+--------------------------
+
+In the current implementation of this module every user is added to the standard 'base.group_user (User Types / Internal User)' security group.
+Most Odoo modules are adding new objects as well as ACLs on those new objects.
+In many cases those standard ACLs are set for this 'base.group_user' group.
+
+This may result in too much rights being granted to users since from an ACL standpoint new users receive the combined rights
+of the 'group.group_user' ACL's and the ACLs of their role(s).
+
+A removal of regular users from the 'base.group_user' group is currently under investigation.
 
 Multi-Company setup
 -------------------

@@ -75,6 +75,7 @@ class ResRole(models.Model):
 
     @api.model
     def create(self, vals):
+        self = self.with_context(dict(self.env.context, role_policy_init=True))
         role_group = self._create_role_group(vals)
         vals["group_id"] = role_group.id
         role = super().create(vals)
@@ -94,6 +95,7 @@ class ResRole(models.Model):
         return self.env["res.groups"].create(group_vals)
 
     def write(self, vals):
+        self = self.with_context(dict(self.env.context, role_policy_init=True))
         for role in self:
             if vals.get("code"):
                 if role.code != vals["code"] and role.acl_ids:

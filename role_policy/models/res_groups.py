@@ -8,3 +8,9 @@ class ResGroups(models.Model):
     _inherit = "res.groups"
 
     role = fields.Boolean()
+
+    """
+    TODO:
+    add def create/write to disable adding menu, action, view access
+    via the groups m2m relations.
+    """
