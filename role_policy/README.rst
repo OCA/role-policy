@@ -39,6 +39,19 @@ The standard Odoo approach is to give users access to all menu items and action 
 This approach is changed by this module.
 Every menu item and action binding must be added explicitely to a role in order to be available for the user.
 
+Default access rights on views
+------------------------------
+
+All standard groups are removed from the views.
+In the current version of this module view access is as a consequence secured by a combination of
+
+- view model ACL
+- action bindings
+- menu items
+
+Also the groups inside view architecture are removed at view loading time.
+The web modifier rules must be used in order to hide view elements.
+
 Web modifier rules
 ------------------
 
@@ -78,7 +91,11 @@ You can install the 'role_policy_demo' module in order to get a better feeling o
 Roadmap
 -------
 
+- fix missing fields when group on ORM field (e.g. res.partner,total_invoiced needs user to be in account_invoicing group)
 - Excel import / export.
 - Web modifier rules sanitize button
 - Role Policy traceability
 - Unit tests
+- record rules
+- role groups on views
+
