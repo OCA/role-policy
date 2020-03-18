@@ -21,7 +21,6 @@
     <field name="model">res.role.acl</field>
     <field name="arch" type="xml">
       <tree string="Role ACL" editable="bottom">
-        <field name="name" force_save="1"/>
         <field name="role_id"
                readonly="not context.get('base_model_name')"
                invisible="context.get('base_model_name')"/>
@@ -30,6 +29,7 @@
         <field name="perm_write"/>
         <field name="perm_create"/>
         <field name="perm_unlink"/>
+        <field name="name" optional="hide" force_save="1"/>
         <field name="company_id" optional="hide"
                readonly="not context.get('base_model_name')"
                invisible="context.get('base_model_name')"/>

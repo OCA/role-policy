@@ -52,6 +52,20 @@ In the current version of this module view access is as a consequence secured by
 Also the groups inside view architecture are removed at view loading time.
 The web modifier rules must be used in order to hide view elements.
 
+
+Default access rights on fields
+-------------------------------
+
+All standard groups are removed from the fields except
+
+- base.group_no_one
+- base.group_erp_manager
+- base.group_system
+- base.group_portal
+- base.group_public
+
+A removal of also these groups is currently under investigation.
+
 Web modifier rules
 ------------------
 
@@ -91,11 +105,9 @@ You can install the 'role_policy_demo' module in order to get a better feeling o
 Roadmap
 -------
 
-- fix missing fields when group on ORM field (e.g. res.partner,total_invoiced needs user to be in account_invoicing group)
-- Excel import / export.
+- Excel import
 - Web modifier rules sanitize button
 - Role Policy traceability
 - Unit tests
-- record rules
-- role groups on views
-
+- Record rules
+- Role groups on views (under investigation if required)

@@ -1,3 +1,4 @@
+from . import base
 from . import ir_actions
 from . import ir_ui_menu
 from . import ir_ui_view
