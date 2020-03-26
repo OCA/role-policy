@@ -28,7 +28,6 @@ In order to keep the cost of maintaining the security policies to an acceptable 
 Creating a new role is as simple as exporting an existing one.
 In the export file rights can be added/removed and the result can be reimported in a new role.
 
-
 From a technical standpoint, this module doesn't make any changes to the Odoo kernel.
 The role groups are used to enforce the security policy.
 
@@ -73,9 +72,22 @@ The biggest difference is probably the 'web modifier rules' part which replaces 
 e.g. some fields must be hidden for certain roles.
 The web modifier rules have a 'priority' field which determines the winning rule in case you grant multiple roles to a single user.
 
+Combined roles may lead to unexpected results for the end user.
+E.g. a user can have access to a button in a certain role but loose that access in a combined role.
+Since the 'Admin' users automatically receives all roles, the result of combined roles can be tested via the admin user.
+
+In a future release a user with multiple roles will also be able to select wich roles are active (by default all his roles are combined).
+
+The view/view element approach is different from the other role policy rules in the sense that every views/view element is sent to the
+user interface since the standard security groups are removed at view rendering time. We do not want to introduce the administrative
+burden to define every view and view element explicitly in the role.
+As a consequence unwanted view or view elements must be removed via the 'remove' option.
+
+The difference between 'Invisible' and 'Remove' is essential since 'Invisible' implies that the user needs ACL access to the field that should not
+be rendered.
 
 Since complex environments may have a large number of web modifier rules this module allows to load a large ruleset without syntax checking.
-Hence loading a new role from Excel may result in screen errors for the concerned users. A sanitize button is available in order to
+Hence loading a new role from Excel may result in screen errors for the concerned users. A syntax check button will be made available in order to
 check the syntax with autocorrection where feasible.
 
 User Types / Internal User
@@ -96,6 +108,16 @@ Multi-Company setup
 Roles can be shared between companies.
 In order to do so, you should adapt the default function on the res.role, company_id field.
 
+Import / Export
+---------------
+
+You can update an exported policy file to update a role or create a new role.
+
+In order to remove entries, you should add a column to the import file with 'Delete Entry' as column header.
+Put 'X' in this column for all rows that you want to remove.
+
+Any rows starting with '#' will be ignored during the import.
+
 Demo database
 -------------
 
@@ -105,9 +127,8 @@ You can install the 'role_policy_demo' module in order to get a better feeling o
 Roadmap
 -------
 
-- Excel import
-- Web modifier rules sanitize button
+- Web modifier rules syntax check button
+- Allow a user with multiple roles to select wich roles are active
 - Role Policy traceability
 - Unit tests
 - Record rules
-- Role groups on views (under investigation if required)

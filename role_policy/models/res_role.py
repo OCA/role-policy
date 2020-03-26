@@ -141,3 +141,17 @@ class ResRole(models.Model):
             "data": {"dynamic_report": True},
         }
         return report
+
+    def import_policy(self):
+        self.ensure_one()
+        view = self.env.ref("role_policy.role_policy_import_view_form")
+        return {
+            "name": _("Role Policy Import"),
+            "view_type": "form",
+            "view_mode": "form",
+            "res_model": "role.policy.import",
+            "view_id": view.id,
+            "context": dict(self.env.context, active_id=self.id),
+            "target": "new",
+            "type": "ir.actions.act_window",
+        }

@@ -29,6 +29,7 @@
         <field name="view_id"/>
         <field name="view_type"/>
         <field name="element"/>
+        <field name="remove"/>
         <field name="modifier_invisible"/>
         <field name="modifier_readonly"/>
         <field name="modifier_required"/>

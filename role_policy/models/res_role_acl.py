@@ -13,6 +13,7 @@ CRUD2FLD = {"c": "perm_create", "r": "perm_read", "u": "perm_write", "d": "perm_
 class ResRoleAcl(models.Model):
     _name = "res.role.acl"
     _description = "Role ACL"
+    _order = "name"
     _sql_constraints = [
         ("name_uniq", "unique(name, company_id)", "The Name must be unique")
     ]

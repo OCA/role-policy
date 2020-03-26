@@ -38,22 +38,22 @@ class RolePolicyExportXls(models.AbstractModel):
             },
             "perm_read": {
                 "header": {"value": "Read"},
-                "data": {"value": self._render("role_acl.perm_read and 1 or 1")},
+                "data": {"value": self._render("role_acl.perm_read and 1 or 0")},
                 "width": 6,
             },
             "perm_write": {
                 "header": {"value": "Write"},
-                "data": {"value": self._render("role_acl.perm_write and 1 or 1")},
+                "data": {"value": self._render("role_acl.perm_write and 1 or 0")},
                 "width": 6,
             },
             "perm_create": {
                 "header": {"value": "Create"},
-                "data": {"value": self._render("role_acl.perm_create and 1 or 1")},
+                "data": {"value": self._render("role_acl.perm_create and 1 or 0")},
                 "width": 6,
             },
             "perm_unlink": {
                 "header": {"value": "Delete"},
-                "data": {"value": self._render("role_acl.perm_unlink and 1 or 1")},
+                "data": {"value": self._render("role_acl.perm_unlink and 1 or 0")},
                 "width": 6,
             },
         }

@@ -41,6 +41,12 @@ class WebModifierRule(models.Model):
         '\nbutton name="button_cancel"'
         '\nxpath expr="//page[@id=\'invoice_tab\\]"'
     )
+    remove = fields.Boolean(
+        help="Remove this view or view element from the user interface. "
+        "You should use this option in stead of 'Invisible' "
+        "in order to hide view elements for which the user's role "
+        "does not have read Access rights."
+    )
     # modifer field names should not be equal to modifier names
     # since this creates problems in the Odoo js client
     # hence we put modifier_ in front of it
@@ -90,23 +96,22 @@ class WebModifierRule(models.Model):
         """TODO: add checks on modifier syntax"""
         pass
 
-    def _get_rules(self, model, view_id):
+    def _get_rules(self, model, view_id, remove=False):
         signature_fields = self.env["web.modifier.rule"]._rule_signature_fields()
         order = ",".join(signature_fields) + ",priority"
         view = self.env["ir.ui.view"].browse(view_id)
-        all_rules = self.env["web.modifier.rule"].search(
-            [
-                ("model", "=", model),
-                ("role_id", "in", self.env.user.role_ids.ids),
-                "|",
-                ("view_id", "=", view_id),
-                ("view_id", "=", False),
-                "|",
-                ("view_type", "=", view.type),
-                ("view_type", "=", False),
-            ],
-            order=order,
-        )
+        dom = [
+            ("model", "=", model),
+            ("role_id", "in", self.env.user.role_ids.ids),
+            ("remove", "=", True),
+            "|",
+            ("view_id", "=", view_id),
+            ("view_id", "=", False),
+            "|",
+            ("view_type", "=", view.type),
+            ("view_type", "=", False),
+        ]
+        all_rules = self.env["web.modifier.rule"].search(dom, order=order)
         if all_rules:
             for i, rule in enumerate(all_rules):
                 if i == 0:

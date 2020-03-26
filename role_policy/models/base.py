@@ -9,7 +9,7 @@ _logger = logging.getLogger(__name__)
 
 
 class BaseModel(models.AbstractModel):
-    _inherit = 'base'
+    _inherit = "base"
 
     @api.model
     def user_has_groups(self, groups):
@@ -17,17 +17,18 @@ class BaseModel(models.AbstractModel):
         Disable no-role groups except for user_admin & user_root.
         """
         user = self.env.user
-        if user in [self.env.ref("base.user_admin"),
-                    self.env.ref("base.user_root")]:
+        if user in [self.env.ref("base.user_admin"), self.env.ref("base.user_root")]:
             return super().user_has_groups(groups)
 
         role_groups = []
-        for group_ext_id in groups.split(','):
-            if group_ext_id in ['base.group_no_one',
-                                'base.group_erp_manager',
-                                'base.group_system',
-                                'base.group_portal',
-                                'base.group_public']:
+        for group_ext_id in groups.split(","):
+            if group_ext_id in [
+                "base.group_no_one",
+                "base.group_erp_manager",
+                "base.group_system",
+                "base.group_portal",
+                "base.group_public",
+            ]:
                 role_groups.append(group_ext_id)
             else:
                 group = self.env.ref(group_ext_id)
@@ -36,4 +37,4 @@ class BaseModel(models.AbstractModel):
         if not role_groups:
             return True
         else:
-            return super().user_has_groups(','.join(role_groups))
+            return super().user_has_groups(",".join(role_groups))

@@ -3,13 +3,13 @@
 
 {
     "name": "Role Policy",
-    "version": "13.0.0.5.3",
+    "version": "13.0.0.6.0",
     "license": "AGPL-3",
     "author": "Noviat",
     "website": "http://www.noviat.com",
     "category": "Tools",
     "depends": ["mail", "report_xlsx_helper"],
-    "external_dependencies": {"python": ["lxml"]},
+    "external_dependencies": {"python": ["lxml", "xlrd"]},
     "post_init_hook": "post_init_hook",
     "data": [
         "data/ir_module_category_data.xml",
@@ -23,6 +23,7 @@
         "views/res_users_views.xml",
         "views/security_policy_tag_views.xml",
         "views/web_modfier_rule_views.xml",
+        "wizards/role_policy_import_views.xml",
         "views/menu.xml",
     ],
     "installable": True,
