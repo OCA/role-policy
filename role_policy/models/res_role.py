@@ -103,21 +103,25 @@ class ResRole(models.Model):
                     raise UserError(_("You are not allowed to update the code."))
             if "user_ids" in vals:
                 role.group_id.write({"users": vals["user_ids"]})
-            todo = []
+            updates = []
+            role_gid = role.group_id.id
             for f in ["menu_ids", "act_window_ids", "act_server_ids", "act_report_ids"]:
                 if f in vals:
+                    model = self._fields[f].comodel_name
                     for entry in vals[f]:
                         if entry[0] == 6:
-                            getattr(role, f).write(
-                                {"groups_id": [(3, role.group_id.id)]}
-                            )
+                            model_ids = getattr(role, f).ids
+                            updates.append((model, model_ids, [(3, role_gid)]))
                             if entry[2]:
-                                todo.append(f)
+                                updates.append((model, entry[2], [(4, role_gid)]))
+                        elif entry[0] in (3, 4):
+                            updates.append((model, [entry[1]], [(entry[0], role_gid)]))
                         else:
                             raise NotImplementedError
         res = super().write(vals)
-        for f in todo:
-            getattr(role, f).write({"groups_id": [(4, role.group_id.id)]})
+        for model, model_ids, command in updates:
+            rs = self.env[model].browse(model_ids)
+            rs.write({"groups_id": command})
         return res
 
     def unlink(self):
