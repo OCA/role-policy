@@ -322,7 +322,7 @@ class RolePolicyExportXls(models.AbstractModel):
             "model": {
                 "header": {"value": "Model"},
                 "data": {"value": self._render("rule.model")},
-                "width": 50,
+                "width": 20,
             },
             "priority": {
                 "header": {"value": "Prio"},
@@ -346,8 +346,13 @@ class RolePolicyExportXls(models.AbstractModel):
             },
             "element": {
                 "header": {"value": "Element"},
-                "data": {"value": self._render("rule.element")},
+                "data": {"value": self._render("rule.element or ''")},
                 "width": 50,
+            },
+            "remove": {
+                "header": {"value": "Remove"},
+                "data": {"value": self._render("rule.remove and 1 or ''")},
+                "width": 6,
             },
             "invisible": {
                 "header": {"value": "Invisible"},
@@ -363,6 +368,11 @@ class RolePolicyExportXls(models.AbstractModel):
                 "header": {"value": "Required"},
                 "data": {"value": self._render("rule.modifier_required or ''")},
                 "width": 25,
+            },
+            "sequence": {
+                "header": {"value": "Sequence"},
+                "data": {"value": self._render("rule.sequence")},
+                "width": 6,
             },
         }
 

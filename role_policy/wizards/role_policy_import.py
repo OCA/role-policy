@@ -157,10 +157,10 @@ class RolePolicyImport(models.TransientModel):
 
         for ri in range(1, sheet.nrows):
             ln = sheet.row_values(ri)
-            if not ln or ln and ln[0] == "#":
+            if not ln or ln[0] and ln[0][0] == "#" or not any(ln):
                 continue
             line_errors = []
-            model_name = ln[1]
+            model_name = ln[1].strip()
             if model_name in self.env:
                 model_id = self.env["ir.model"]._get_id(model_name)
             else:
@@ -276,22 +276,12 @@ class RolePolicyImport(models.TransientModel):
 
         for ri in range(1, sheet.nrows):
             ln = sheet.row_values(ri)
-            if not ln or ln and ln[0] == "#":
+            if not ln or ln[0] and ln[0][0] == "#" or not any(ln):
                 continue
             line_errors = []
-            int_err = _(
-                "Incorrect value '%s'for Column 'Id'. "
-                "The value should be an Integer > 0."
+            fld_id = self._read_integer(
+                ln[1], "Id", line_errors, required=True, positive=True
             )
-            try:
-                fld_id = int(ln[1])
-            except Exception:
-                line_errors.append(int_err)
-            if fld_id <= 1:
-                line_errors.append(int_err)
-
-            if not fld_id:
-                line_errors.append(_("Missing Value for Column 'Id'."))
 
             if unlink_column:
                 unlink = ln[unlink_pos]
@@ -329,8 +319,159 @@ class RolePolicyImport(models.TransientModel):
 
         return err_log
 
-    def _read_modifier_rule(self, wb, role):
-        err_log = "modifier_rule import is under construction"
+    def _read_modifier_rule(self, sheet, role):
+        header = [
+            "Model",
+            "Prio",
+            "View",
+            "View Id",
+            "View Type",
+            "Element",
+            "Remove",
+            "Invisible",
+            "Readonly",
+            "Required",
+            "Sequence",
+        ]
+        headerline = sheet.row_values(0)
+        err_log = self._check_sheet_header(sheet, header, headerline)
+        if err_log:
+            return err_log
+        unlink_pos = len(header)
+        unlink_column = len(headerline) > unlink_pos and headerline[unlink_pos] in [
+            "Delete Entry",
+            "Unlink",
+        ]
+        to_unlink = self.env["web.modifier.rule"]
+        to_create = []
+
+        for ri in range(1, sheet.nrows):
+            ln = sheet.row_values(ri)
+            if not ln or ln[0] and ln[0][0] == "#" or not any(ln):
+                continue
+            line_errors = []
+
+            model_name = ln[0].strip()
+            if model_name in self.env:
+                model_id = self.env["ir.model"]._get_id(model_name)
+            else:
+                line_errors.append(_("Model '%s' does not exist.") % model_name)
+                if err_log:
+                    err_log += "\n\n"
+                err_log = self._format_line_errors(ln, line_errors)
+                continue
+            prio = self._read_integer(
+                ln[1], "Prio", line_errors, required=True, positive=True
+            )
+            view_id = self._read_integer(
+                ln[3], "View Id", line_errors, required=False, positive=True
+            )
+            view_type = ln[4].strip() or False
+            element = ln[5].strip() or False
+            cell = sheet.cell(ri, 6)
+            remove = cell.value
+            if cell.ctype == xlrd.XL_CELL_TEXT:
+                remove = cell.value.strip()
+            elif cell.ctype == xlrd.XL_CELL_NUMBER:
+                is_int = cell.value % 1 == 0.0
+                if is_int:
+                    remove = int(cell.value)
+                else:
+                    remove = str(cell.value)
+            if remove not in [0, 1, ""]:
+                line_errors.append(
+                    _(
+                        "Incorrect value '%s'for field '%s'. "
+                        "The value should be '0' or '1'."
+                    )
+                    % (ln[6], "Remove")
+                )
+            vals = {
+                "role_id": role.id,
+                "model_id": model_id,
+                "priority": prio,
+                "view_id": view_id,
+                "view_type": view_type,
+                "element": element,
+                "remove": remove and True or False,
+            }
+            for ci, fld in enumerate(["invisible", "readonly", "required"], start=7):
+                cell = sheet.cell(ri, ci)
+                if cell.ctype == xlrd.XL_CELL_TEXT:
+                    val = cell.value.strip()
+                elif cell.ctype == xlrd.XL_CELL_NUMBER:
+                    is_int = cell.value % 1 == 0.0
+                    if is_int:
+                        val = str(int(cell.value))
+                    else:
+                        val = str(cell.value).strip()
+                else:
+                    val = str(ln[ci])
+                vals["modifier_{}".format(fld)] = val or False
+            match_vals = {k: v for k, v in vals.items() if k != "role_id"}
+
+            def rule_filter(rule):
+                match = True
+                for k, val in match_vals.items():
+                    rule_val = getattr(rule, k)
+                    if k[-3:] == "_id":
+                        rule_val = rule_val.id
+                    if rule_val != val:
+                        match = False
+                        break
+                return match
+
+            rule = role.modifier_rule_ids.filtered(rule_filter)
+            if len(rule) > 1:
+                line_errors.append(
+                    _(
+                        "Multiple matching rules found in the 'Web Modifier Rules'.\n"
+                        "CF. rules %s."
+                    )
+                    % rule
+                )
+            if unlink_column:
+                unlink = ln[unlink_pos]
+                if unlink not in ["X", "x", ""]:
+                    line_errors.append(
+                        _(
+                            "Incorrect value '%s' for Column 'Delete Entry'. "
+                            "The value should be 'X' or empty."
+                        )
+                        % unlink
+                    )
+                if unlink:
+                    if not rule:
+                        line_errors.append(
+                            _(
+                                "Incorrect value '%s' for Column 'Delete Entry'. "
+                                "You cannot remove a Web Modifier Rule "
+                                "which doesn't exist."
+                            )
+                            % unlink
+                        )
+                    else:
+                        to_unlink += rule
+
+            sequence = self._read_integer(
+                ln[10], "Sequence", line_errors, required=True, positive=True
+            )
+            vals["sequence"] = sequence
+
+            if not rule:
+                if vals not in to_create:
+                    to_create.append(vals)
+
+            if line_errors:
+                if err_log:
+                    err_log += "\n\n"
+                err_log = self._format_line_errors(ln, line_errors)
+
+        if not err_log:
+            if to_unlink:
+                to_unlink.unlink()
+            if to_create:
+                self.env["web.modifier.rule"].create(to_create)
         return err_log
 
     def _check_sheet_header(self, sheet, header, headerline):
@@ -343,6 +484,22 @@ class RolePolicyImport(models.TransientModel):
                 "following column names: %s"
             ) % (sheet.name, header)
         return err_log
+
+    def _read_integer(self, val, col, line_errors, required=True, positive=True):
+        int_err = _(
+            "Incorrect value for Column '%s'. " "The value should be an Integer%s."
+        ) % (col, positive and " > 0" or "")
+        res = val
+        if res:
+            try:
+                res = int(val)
+            except Exception:
+                line_errors.append(int_err)
+        if positive and res and res <= 0:
+            line_errors.append(int_err)
+        if required and not res:
+            line_errors.append(_("Missing Value for Column '%s'.") % col)
+        return res or False
 
     def _format_line_errors(self, ln, line_errors):
         err_log = _("Error while processing line %s:\n") % ln
