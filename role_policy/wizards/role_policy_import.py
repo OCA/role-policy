@@ -141,7 +141,7 @@ class RolePolicyImport(models.TransientModel):
                 err_log += "\n\n" + sheet_err_log
         return err_log
 
-    def _read_acl(self, sheet, role):
+    def _read_acl(self, sheet, role):  # noqa: C901
         header = ["Name", "Model", "Read", "Write", "Create", "Delete"]
         headerline = sheet.row_values(0)
         err_log = self._check_sheet_header(sheet, header, headerline)
@@ -319,7 +319,7 @@ class RolePolicyImport(models.TransientModel):
 
         return err_log
 
-    def _read_modifier_rule(self, sheet, role):
+    def _read_modifier_rule(self, sheet, role):  # noqa: C901
         header = [
             "Model",
             "Prio",
