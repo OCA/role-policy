@@ -240,19 +240,19 @@ class RolePolicyImport(models.TransientModel):
         return err_log
 
     def _read_menu(self, sheet, role):
-        header = ["Menu", "Id"]
+        header = ["Menu", "External Identifier"]
         return self._read_m2m_sheet(sheet, role, header)
 
     def _read_act_window(self, sheet, role):
-        header = ["Window Action", "Id"]
+        header = ["Window Action", "External Identifier"]
         return self._read_m2m_sheet(sheet, role, header)
 
     def _read_act_server(self, sheet, role):
-        header = ["Server Action", "Id"]
+        header = ["Server Action", "External Identifier"]
         return self._read_m2m_sheet(sheet, role, header)
 
     def _read_act_report(self, sheet, role):
-        header = ["Report Action", "Id"]
+        header = ["Report Action", "External Identifier"]
         return self._read_m2m_sheet(sheet, role, header)
 
     def _read_m2m_sheet(self, sheet, role, header):
@@ -279,9 +279,7 @@ class RolePolicyImport(models.TransientModel):
             if not ln or ln[0] and ln[0][0] == "#" or not any(ln):
                 continue
             line_errors = []
-            fld_id = self._read_integer(
-                ln[1], "Id", line_errors, required=True, positive=True
-            )
+            fld_id = self._read_xml_id(ln[1], line_errors)
 
             if unlink_column:
                 unlink = ln[unlink_pos]
@@ -487,7 +485,7 @@ class RolePolicyImport(models.TransientModel):
 
     def _read_integer(self, val, col, line_errors, required=True, positive=True):
         int_err = _(
-            "Incorrect value for Column '%s'. " "The value should be an Integer%s."
+            "Incorrect value for Column '%s'. The value should be an Integer%s."
         ) % (col, positive and " > 0" or "")
         res = val
         if res:
@@ -500,6 +498,12 @@ class RolePolicyImport(models.TransientModel):
         if required and not res:
             line_errors.append(_("Missing Value for Column '%s'.") % col)
         return res or False
+
+    def _read_xml_id(self, val, line_errors):
+        rec = self.env.ref(val, raise_if_not_found=False)
+        if not rec:
+            line_errors.append(_("Incorrect value for Column 'External Identifier'."))
+        return rec and rec.id or False
 
     def _format_line_errors(self, ln, line_errors):
         err_log = _("Error while processing line %s:\n") % ln

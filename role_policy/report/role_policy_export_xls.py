@@ -105,9 +105,9 @@ class RolePolicyExportXls(models.AbstractModel):
                 "width": 50,
             },
             "menu_id": {
-                "header": {"value": "Id"},
-                "data": {"value": self._render("menu.id")},
-                "width": 5,
+                "header": {"value": "External Identifier"},
+                "data": {"value": self._render("xml_id")},
+                "width": 50,
             },
         }
 
@@ -141,13 +141,14 @@ class RolePolicyExportXls(models.AbstractModel):
         )
         ws.freeze_panes(row_pos, 0)
 
-        for menu in role.menu_ids:
+        for rec in role.menu_ids:
+            [xml_id] = rec.get_external_id().values()
             row_pos = self._write_line(
                 ws,
                 row_pos,
                 ws_params,
                 col_specs_section="data",
-                render_space={"menu": menu},
+                render_space={"menu": rec, "xml_id": xml_id},
                 default_format=self.format_tcell_left,
             )
 
@@ -160,9 +161,9 @@ class RolePolicyExportXls(models.AbstractModel):
                 "width": 50,
             },
             "act_window_id": {
-                "header": {"value": "Id"},
-                "data": {"value": self._render("act_window.id")},
-                "width": 5,
+                "header": {"value": "External Identifier"},
+                "data": {"value": self._render("xml_id")},
+                "width": 50,
             },
         }
 
@@ -196,13 +197,14 @@ class RolePolicyExportXls(models.AbstractModel):
         )
         ws.freeze_panes(row_pos, 0)
 
-        for act_window in role.act_window_ids:
+        for rec in role.act_window_ids:
+            [xml_id] = rec.get_external_id().values()
             row_pos = self._write_line(
                 ws,
                 row_pos,
                 ws_params,
                 col_specs_section="data",
-                render_space={"act_window": act_window},
+                render_space={"act_window": rec, "xml_id": xml_id},
                 default_format=self.format_tcell_left,
             )
 
@@ -215,9 +217,9 @@ class RolePolicyExportXls(models.AbstractModel):
                 "width": 50,
             },
             "act_server_id": {
-                "header": {"value": "Id"},
-                "data": {"value": self._render("act_server.id")},
-                "width": 5,
+                "header": {"value": "External Identifier"},
+                "data": {"value": self._render("xml_id")},
+                "width": 50,
             },
         }
 
@@ -251,13 +253,14 @@ class RolePolicyExportXls(models.AbstractModel):
         )
         ws.freeze_panes(row_pos, 0)
 
-        for act_server in role.act_server_ids:
+        for rec in role.act_server_ids:
+            [xml_id] = rec.get_external_id().values()
             row_pos = self._write_line(
                 ws,
                 row_pos,
                 ws_params,
                 col_specs_section="data",
-                render_space={"act_server": act_server},
+                render_space={"act_server": rec, "xml_id": xml_id},
                 default_format=self.format_tcell_left,
             )
 
@@ -270,9 +273,9 @@ class RolePolicyExportXls(models.AbstractModel):
                 "width": 50,
             },
             "act_server_id": {
-                "header": {"value": "Id"},
-                "data": {"value": self._render("act_report.id")},
-                "width": 5,
+                "header": {"value": "External Identifier"},
+                "data": {"value": self._render("xml_id")},
+                "width": 50,
             },
         }
 
@@ -306,13 +309,14 @@ class RolePolicyExportXls(models.AbstractModel):
         )
         ws.freeze_panes(row_pos, 0)
 
-        for act_report in role.act_report_ids:
+        for rec in role.act_report_ids:
+            [xml_id] = rec.get_external_id().values()
             row_pos = self._write_line(
                 ws,
                 row_pos,
                 ws_params,
                 col_specs_section="data",
-                render_space={"act_report": act_report},
+                render_space={"act_report": rec, "xml_id": xml_id},
                 default_format=self.format_tcell_left,
             )
 
