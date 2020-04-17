@@ -91,7 +91,14 @@
               </field>
             </page>
             <page string="Report Actions" id="act_server_ids">
-              <field name="act_report_ids"/>
+              <field name="act_report_ids">
+                <tree default_order="model, name, report_type">
+                  <field name="model"/>
+                  <field name="name"/>
+                  <field name="report_name"/>
+                  <field name="report_type"/>
+                </tree>
+              </field>
             </page>
             <page string="View Modifier Rules" id="modifier_rule_ids">
               <field name="modifier_rule_ids" context="{'active_test': False}"/>
