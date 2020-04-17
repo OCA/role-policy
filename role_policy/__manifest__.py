@@ -3,7 +3,7 @@
 
 {
     "name": "Role Policy",
-    "version": "13.0.0.6.3",
+    "version": "13.0.0.6.4",
     "license": "AGPL-3",
     "author": "Noviat",
     "website": "http://www.noviat.com",

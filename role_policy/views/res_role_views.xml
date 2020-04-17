@@ -66,7 +66,11 @@
               <field name="acl_ids"/>
             </page>
             <page string="Menu Items" id="menu_ids">
-              <field name="menu_ids" context="{'ir.ui.menu.full_list': True}"/>
+              <field name="menu_ids" context="{'ir.ui.menu.full_list': True}">
+                <tree default_order="complete_name">
+                  <field name="complete_name"/>
+                </tree>
+              </field>
             </page>
             <page string="Window Actions" id="act_window_ids">
               <field name="act_window_ids"/>
