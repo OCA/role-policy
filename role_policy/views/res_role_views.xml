@@ -73,7 +73,13 @@
               </field>
             </page>
             <page string="Window Actions" id="act_window_ids">
-              <field name="act_window_ids"/>
+              <field name="act_window_ids">
+                <tree default_order="res_model, name, xml_id">
+                  <field name="res_model"/>
+                  <field name="name"/>
+                  <field name="xml_id"/>
+                </tree>
+              </field>
             </page>
             <page string="Server Actions" id="act_server_ids">
               <field name="act_server_ids"/>
