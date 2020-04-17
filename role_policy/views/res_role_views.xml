@@ -82,7 +82,13 @@
               </field>
             </page>
             <page string="Server Actions" id="act_server_ids">
-              <field name="act_server_ids"/>
+              <field name="act_server_ids">
+                <tree default_order="model_name, name, xml_id">
+                  <field name="model_name"/>
+                  <field name="name"/>
+                  <field name="xml_id"/>
+                </tree>
+              </field>
             </page>
             <page string="Report Actions" id="act_server_ids">
               <field name="act_report_ids"/>
