@@ -101,7 +101,7 @@
               </field>
             </page>
             <page string="View Modifier Rules" id="modifier_rule_ids">
-              <field name="modifier_rule_ids" context="{'active_test': False}"/>
+              <field name="modifier_rule_ids"/>
             </page>
             <page string="Record Rules" id="record_rule_ids">
               <p>
@@ -125,6 +125,7 @@
     <field name="name">Roles</field>
     <field name="res_model">res.role</field>
     <field name="view_mode">tree,form</field>
+    <field name="context">{'active_test': False}</field>
   </record>
 
 </odoo>

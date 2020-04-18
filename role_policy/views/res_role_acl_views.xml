@@ -35,7 +35,7 @@
                invisible="context.get('base_model_name')"/>
         <field name="group_id" optional="hide" force_save="1"/>
         <field name="access_id" optional="hide" force_save="1"/>
-        <field name="active" optional="hide"/>
+        <field name="active" optional="show"/>
       </tree>
     </field>
   </record>

@@ -103,7 +103,7 @@ class WebModifierRule(models.Model):
         dom = [
             ("model", "=", model),
             ("role_id", "in", self.env.user.role_ids.ids),
-            ("remove", "=", True),
+            ("remove", "=", remove),
             "|",
             ("view_id", "=", view_id),
             ("view_id", "=", False),

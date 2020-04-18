@@ -56,6 +56,11 @@ class RolePolicyExportXls(models.AbstractModel):
                 "data": {"value": self._render("role_acl.perm_unlink and 1 or 0")},
                 "width": 6,
             },
+            "active": {
+                "header": {"value": "Active"},
+                "data": {"value": self._render("role_acl.active and 1 or 0")},
+                "width": 6,
+            },
         }
         params = {
             "ws_name": "Role ACLs",
@@ -372,6 +377,11 @@ class RolePolicyExportXls(models.AbstractModel):
                 "header": {"value": "Required"},
                 "data": {"value": self._render("rule.modifier_required or ''")},
                 "width": 25,
+            },
+            "active": {
+                "header": {"value": "Active"},
+                "data": {"value": self._render("rule.active and 1 or 0")},
+                "width": 6,
             },
             "sequence": {
                 "header": {"value": "Sequence"},

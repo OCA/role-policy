@@ -142,7 +142,7 @@ class RolePolicyImport(models.TransientModel):
         return err_log
 
     def _read_acl(self, sheet, role):  # noqa: C901
-        header = ["Name", "Model", "Read", "Write", "Create", "Delete"]
+        header = ["Name", "Model", "Read", "Write", "Create", "Delete", "Active"]
         headerline = sheet.row_values(0)
         err_log = self._check_sheet_header(sheet, header, headerline)
         if err_log:
@@ -198,26 +198,18 @@ class RolePolicyImport(models.TransientModel):
             if not role_acl:
                 line_action = "create"
             for ci, fld in enumerate(
-                ["perm_read", "perm_write", "perm_create", "perm_unlink"], start=2
+                [
+                    ("perm_read", "Read"),
+                    ("perm_write", "Write"),
+                    ("perm_create", "Create"),
+                    ("perm_unlink", "Delete"),
+                    ("active", "Active"),
+                ],
+                start=2,
             ):
-                cell = sheet.cell(ri, ci)
-                if cell.ctype == xlrd.XL_CELL_TEXT:
-                    ln[ci] = cell.value
-                elif cell.ctype == xlrd.XL_CELL_NUMBER:
-                    is_int = cell.value % 1 == 0.0
-                    if is_int:
-                        ln[ci] = str(int(cell.value))
-                    else:
-                        ln[ci] = str(cell.value)
-                if ln[ci] not in ["0", "1"]:
-                    line_errors.append(
-                        _(
-                            "Incorrect value '%s'for field '%s'. "
-                            "The value should be '0' or '1'."
-                        )
-                        % (ln[ci], fld)
-                    )
-                val = ln[ci] == "1" and True or False
+                fld = fld[0]
+                col = fld[1]
+                val = self._read_0_1(ln[ci], col, sheet.cell(ri, ci), line_errors)
                 vals[fld] = val
                 if line_action != "delete":
                     if getattr(role_acl, fld) != val:
@@ -329,6 +321,7 @@ class RolePolicyImport(models.TransientModel):
             "Invisible",
             "Readonly",
             "Required",
+            "Active",
             "Sequence",
         ]
         headerline = sheet.row_values(0)
@@ -451,8 +444,11 @@ class RolePolicyImport(models.TransientModel):
                     else:
                         to_unlink += rule
 
+            vals["active"] = self._read_0_1(
+                ln[10], "Active", sheet.cell(ri, 10), line_errors
+            )
             sequence = self._read_integer(
-                ln[10], "Sequence", line_errors, required=True, positive=True
+                ln[11], "Sequence", line_errors, required=True, positive=True
             )
             vals["sequence"] = sequence
 
@@ -498,6 +494,25 @@ class RolePolicyImport(models.TransientModel):
         if required and not res:
             line_errors.append(_("Missing Value for Column '%s'.") % col)
         return res or False
+
+    def _read_0_1(self, val, col, cell, line_errors):
+        if cell.ctype == xlrd.XL_CELL_TEXT:
+            res = cell.value
+        elif cell.ctype == xlrd.XL_CELL_NUMBER:
+            is_int = cell.value % 1 == 0.0
+            if is_int:
+                res = str(int(cell.value))
+            else:
+                res = str(cell.value)
+        if res not in ["0", "1"]:
+            line_errors.append(
+                _(
+                    "Incorrect value '%s'for Column '%s'. "
+                    "The value should be '0' or '1'."
+                )
+                % (val, col)
+            )
+        return res == "1" and True or False
 
     def _read_xml_id(self, val, line_errors):
         rec = self.env.ref(val, raise_if_not_found=False)
