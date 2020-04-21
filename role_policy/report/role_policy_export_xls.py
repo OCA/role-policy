@@ -343,10 +343,10 @@ class RolePolicyExportXls(models.AbstractModel):
                 "data": {"value": self._render("rule.view_id.name or ''")},
                 "width": 20,
             },
-            "view_id": {
-                "header": {"value": "View Id"},
-                "data": {"value": self._render("rule.view_id.id or ''")},
-                "width": 7,
+            "view_xml_id": {
+                "header": {"value": "View External Identifier"},
+                "data": {"value": self._render("view_xml_id")},
+                "width": 50,
             },
             "view_type": {
                 "header": {"value": "View Type"},
@@ -421,11 +421,15 @@ class RolePolicyExportXls(models.AbstractModel):
         ws.freeze_panes(row_pos, 0)
 
         for rule in role.modifier_rule_ids:
+            if rule.view_id:
+                [view_xml_id] = rule.view_id.get_external_id().values()
+            else:
+                view_xml_id = ""
             row_pos = self._write_line(
                 ws,
                 row_pos,
                 ws_params,
                 col_specs_section="data",
-                render_space={"rule": rule},
+                render_space={"rule": rule, "view_xml_id": view_xml_id},
                 default_format=self.format_tcell_left,
             )

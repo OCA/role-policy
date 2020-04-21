@@ -314,7 +314,7 @@ class RolePolicyImport(models.TransientModel):
             "Model",
             "Prio",
             "View",
-            "View Id",
+            "View External Identifier",
             "View Type",
             "Element",
             "Remove",
@@ -354,9 +354,11 @@ class RolePolicyImport(models.TransientModel):
             prio = self._read_integer(
                 ln[1], "Prio", line_errors, required=True, positive=True
             )
-            view_id = self._read_integer(
-                ln[3], "View Id", line_errors, required=False, positive=True
-            )
+            view_xml_id = ln[3].strip()
+            if view_xml_id:
+                view_id = self._read_xml_id(view_xml_id, line_errors)
+            else:
+                view_id = False
             view_type = ln[4].strip() or False
             element = ln[5].strip() or False
             cell = sheet.cell(ri, 6)
