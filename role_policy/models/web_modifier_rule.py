@@ -40,7 +40,7 @@ class WebModifierRule(models.Model):
     view_xml_id = fields.Char(
         string="View External Identifier", related="view_id.xml_id", store=True
     )
-    view_type = fields.Selection(selection="_selection_view_type")
+    view_type = fields.Selection(selection="_selection_view_type", required=True)
     element_ui = fields.Char(
         string="Element",
         help="Specify the view element. E.g."
