@@ -120,24 +120,31 @@ class WebModifierRule(models.Model):
                 to_update = False
                 parts = element_ui.split("button[@name=")
                 for i, part in enumerate(parts[1:], start=1):
-                    name, name_close = part.split("]")
+                    name, remaining = part.split("]")
                     name2 = self._resolve_rule_element_button_name(name, line_errors)
                     if name2 != name:
                         to_update = True
-                        parts[i] = "]".join([name2, name_close])
+                        parts[i] = "]".join([name2, remaining])
                 if to_update:
                     element = "button[@name=".join(parts)
             elif element_ui[:7] == "button ":
                 parts = element_ui.split("name=")
                 if len(parts) > 1:
-                    name = parts[1]
+                    part1 = parts[1].split(" ", 1)
+                    name = part1[0]
+                    if len(part1) == 2:
+                        remaining = part1[1]
+                    else:
+                        remaining = False
                     name2 = self._resolve_rule_element_button_name(name, line_errors)
                     if name2 != name:
-                        parts[1] = name2
-                        element = "button ".join(parts)
+                        element = "name=".join([parts[0], name2])
+                        if remaining:
+                            element += " " + remaining
         return element
 
     def _resolve_rule_element_button_name(self, name, line_errors):
+        quote_char = name[0]
         name = safe_eval(name)
         if name[:2] == "%(" and name[-2:] == ")d":
             xml_id = name[2:-2]
@@ -154,7 +161,7 @@ class WebModifierRule(models.Model):
                     % self.element_ui
                 )
             else:
-                name = "'{}'".format(act_id[1])
+                name = quote_char + str(act_id[1]) + quote_char
         else:
             self._check_element_ui_button_name(name, line_errors)
         return name
