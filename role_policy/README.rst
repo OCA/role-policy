@@ -113,8 +113,7 @@ Import / Export
 
 You can update an exported policy file to update a role or create a new role.
 
-In order to remove entries, you should add a column to the import file with 'Delete Entry' as column header.
-Put 'X' in this column for all rows that you want to remove.
+In order to remove entries, you should put 'X' in the column with 'Delete Entry' as column header.
 
 Any rows starting with '#' will be ignored during the import.
 

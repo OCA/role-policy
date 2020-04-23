@@ -27,13 +27,15 @@
         <field name="model" optional="hide"/>
         <field name="priority" string="Prio"/>
         <field name="view_id"/>
+        <field name="view_xml_id" optional="hide"/>
         <field name="view_type"/>
-        <field name="element"/>
+        <field name="element_ui"/>
         <field name="remove"/>
         <field name="modifier_invisible"/>
         <field name="modifier_readonly"/>
         <field name="modifier_required"/>
         <field name="active" optional="show"/>
+        <field name="element" optional="hide"/>
         <field name="tag_ids" widget="many2many_tags" optional="hide"/>
       </tree>
     </field>

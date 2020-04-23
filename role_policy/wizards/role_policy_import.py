@@ -148,10 +148,10 @@ class RolePolicyImport(models.TransientModel):
         if err_log:
             return err_log
         unlink_pos = len(header)
-        unlink_column = len(headerline) > unlink_pos and headerline[unlink_pos] in [
-            "Delete Entry",
-            "Unlink",
-        ]
+        unlink_column = (
+            len(headerline) > unlink_pos and headerline[unlink_pos] == "Delete Entry"
+        )
+
         to_unlink = self.env["res.role.acl"]
         to_create = []
 
@@ -178,7 +178,7 @@ class RolePolicyImport(models.TransientModel):
                 if unlink not in ["X", "x", ""]:
                     line_errors.append(
                         _(
-                            "Incorrect value '%s' for Column 'Delete Entry'. "
+                            "Incorrect value '%s' for field 'Delete Entry'. "
                             "The value should be 'X' or empty."
                         )
                         % unlink
@@ -187,7 +187,7 @@ class RolePolicyImport(models.TransientModel):
                     if not role_acl:
                         line_errors.append(
                             _(
-                                "Incorrect value '%s' for Column 'Delete Entry'. "
+                                "Incorrect value '%s' for field 'Delete Entry'. "
                                 "You cannot remove a Role ACL which doesn't exist."
                             )
                             % unlink
@@ -253,10 +253,9 @@ class RolePolicyImport(models.TransientModel):
         if err_log:
             return err_log
         unlink_pos = len(header)
-        unlink_column = len(headerline) > unlink_pos and headerline[unlink_pos] in [
-            "Delete Entry",
-            "Unlink",
-        ]
+        unlink_column = (
+            len(headerline) > unlink_pos and headerline[unlink_pos] == "Delete Entry"
+        )
         fld = sheet.name.split(" ")[0].lower()
         if fld == "menu":
             fld = fld + "_ids"
@@ -278,7 +277,7 @@ class RolePolicyImport(models.TransientModel):
                 if unlink not in ["X", "x", ""]:
                     line_errors.append(
                         _(
-                            "Incorrect value '%s' for Column 'Delete Entry'. "
+                            "Incorrect value '%s' for field 'Delete Entry'. "
                             "The value should be 'X' or empty."
                         )
                         % unlink
@@ -287,7 +286,7 @@ class RolePolicyImport(models.TransientModel):
                     if fld_id not in role_fld_ids:
                         line_errors.append(
                             _(
-                                "Incorrect value '%s' for Column 'Delete Entry'. "
+                                "Incorrect value '%s' for field 'Delete Entry'. "
                                 "You cannot remove a Menu Item which doesn't exist."
                             )
                             % unlink
@@ -329,10 +328,9 @@ class RolePolicyImport(models.TransientModel):
         if err_log:
             return err_log
         unlink_pos = len(header)
-        unlink_column = len(headerline) > unlink_pos and headerline[unlink_pos] in [
-            "Delete Entry",
-            "Unlink",
-        ]
+        unlink_column = (
+            len(headerline) > unlink_pos and headerline[unlink_pos] == "Delete Entry"
+        )
         to_unlink = self.env["web.modifier.rule"]
         to_create = []
 
@@ -360,7 +358,7 @@ class RolePolicyImport(models.TransientModel):
             else:
                 view_id = False
             view_type = ln[4].strip() or False
-            element = ln[5].strip() or False
+            element_ui = ln[5].strip() or False
             cell = sheet.cell(ri, 6)
             remove = cell.value
             if cell.ctype == xlrd.XL_CELL_TEXT:
@@ -385,7 +383,7 @@ class RolePolicyImport(models.TransientModel):
                 "priority": prio,
                 "view_id": view_id,
                 "view_type": view_type,
-                "element": element,
+                "element_ui": element_ui,
                 "remove": remove and True or False,
             }
             for ci, fld in enumerate(["invisible", "readonly", "required"], start=7):
@@ -428,7 +426,7 @@ class RolePolicyImport(models.TransientModel):
                 if unlink not in ["X", "x", ""]:
                     line_errors.append(
                         _(
-                            "Incorrect value '%s' for Column 'Delete Entry'. "
+                            "Incorrect value '%s' for field 'Delete Entry'. "
                             "The value should be 'X' or empty."
                         )
                         % unlink
@@ -437,7 +435,7 @@ class RolePolicyImport(models.TransientModel):
                     if not rule:
                         line_errors.append(
                             _(
-                                "Incorrect value '%s' for Column 'Delete Entry'. "
+                                "Incorrect value '%s' for field 'Delete Entry'. "
                                 "You cannot remove a Web Modifier Rule "
                                 "which doesn't exist."
                             )
@@ -477,13 +475,13 @@ class RolePolicyImport(models.TransientModel):
                 "Error while reading sheet '%s':\n"
                 "Incorrect sheet header.\n"
                 "The first line of your sheet should contain the "
-                "following column names: %s"
+                "following field names: %s"
             ) % (sheet.name, header)
         return err_log
 
     def _read_integer(self, val, col, line_errors, required=True, positive=True):
         int_err = _(
-            "Incorrect value for Column '%s'. The value should be an Integer%s."
+            "Incorrect value for field '%s'. The value should be an Integer%s."
         ) % (col, positive and " > 0" or "")
         res = val
         if res:
@@ -494,7 +492,7 @@ class RolePolicyImport(models.TransientModel):
         if positive and res and res <= 0:
             line_errors.append(int_err)
         if required and not res:
-            line_errors.append(_("Missing Value for Column '%s'.") % col)
+            line_errors.append(_("Missing Value for field '%s'.") % col)
         return res or False
 
     def _read_0_1(self, val, col, cell, line_errors):
@@ -509,7 +507,7 @@ class RolePolicyImport(models.TransientModel):
         if res not in ["0", "1"]:
             line_errors.append(
                 _(
-                    "Incorrect value '%s'for Column '%s'. "
+                    "Incorrect value '%s'for field '%s'. "
                     "The value should be '0' or '1'."
                 )
                 % (val, col)
@@ -519,7 +517,7 @@ class RolePolicyImport(models.TransientModel):
     def _read_xml_id(self, val, line_errors):
         rec = self.env.ref(val, raise_if_not_found=False)
         if not rec:
-            line_errors.append(_("Incorrect value for Column 'External Identifier'."))
+            line_errors.append(_("Incorrect value for field 'External Identifier'."))
         return rec and rec.id or False
 
     def _format_line_errors(self, ln, line_errors):

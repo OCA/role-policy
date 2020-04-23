@@ -20,7 +20,18 @@ class RolePolicyExportXls(models.AbstractModel):
             "modifier_rule",
         ]:
             method = getattr(self, "_get_ws_params_{}".format(entry))
-            ws_params.append(method(data, role))
+            method_params = method(data, role)
+            method_params["wanted_list"].append("unlink")
+            method_params["col_specs"].update(
+                {
+                    "unlink": {
+                        "header": {"value": "Delete Entry"},
+                        "data": {"value": ""},
+                        "width": 12,
+                    }
+                }
+            )
+            ws_params.append(method_params)
         return ws_params
 
     def _get_ws_params_acl(self, data, role):
@@ -345,7 +356,7 @@ class RolePolicyExportXls(models.AbstractModel):
             },
             "view_xml_id": {
                 "header": {"value": "View External Identifier"},
-                "data": {"value": self._render("view_xml_id")},
+                "data": {"value": self._render("rule.view_xml_id or ''")},
                 "width": 50,
             },
             "view_type": {
@@ -355,7 +366,7 @@ class RolePolicyExportXls(models.AbstractModel):
             },
             "element": {
                 "header": {"value": "Element"},
-                "data": {"value": self._render("rule.element or ''")},
+                "data": {"value": self._render("rule.element_ui or ''")},
                 "width": 50,
             },
             "remove": {
@@ -386,7 +397,7 @@ class RolePolicyExportXls(models.AbstractModel):
             "sequence": {
                 "header": {"value": "Sequence"},
                 "data": {"value": self._render("rule.sequence")},
-                "width": 6,
+                "width": 8,
             },
         }
 
@@ -421,15 +432,11 @@ class RolePolicyExportXls(models.AbstractModel):
         ws.freeze_panes(row_pos, 0)
 
         for rule in role.modifier_rule_ids:
-            if rule.view_id:
-                [view_xml_id] = rule.view_id.get_external_id().values()
-            else:
-                view_xml_id = ""
             row_pos = self._write_line(
                 ws,
                 row_pos,
                 ws_params,
                 col_specs_section="data",
-                render_space={"rule": rule, "view_xml_id": view_xml_id},
+                render_space={"rule": rule},
                 default_format=self.format_tcell_left,
             )
