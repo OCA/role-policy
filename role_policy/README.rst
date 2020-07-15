@@ -78,13 +78,16 @@ Since the 'Admin' users automatically receives all roles, the result of combined
 
 In a future release a user with multiple roles will also be able to select wich roles are active (by default all his roles are combined).
 
-The view/view element approach is different from the other role policy rules in the sense that every views/view element is sent to the
+The view/view element approach is different from the other role policy rules in the sense that every view/view element is sent to the
 user interface since the standard security groups are removed at view rendering time. We do not want to introduce the administrative
-burden to define every view and view element explicitly in the role.
+burden to define every view/view element explicitly in the role.
 As a consequence unwanted view or view elements must be removed via the 'remove' option.
 
 The difference between 'Invisible' and 'Remove' is essential since 'Invisible' implies that the user needs ACL access to the field that should not
 be rendered.
+
+The web modifier rules also allow to set the modifiers of a certain element without specifying a view, e.g. to hide a certain field for all views on an object.
+This can be further refined by specifying a specific view type. The 'Remove' option is not allowed without defining a view.
 
 Since complex environments may have a large number of web modifier rules this module allows to load a large ruleset without syntax checking.
 Hence loading a new role from Excel may result in screen errors for the concerned users. A syntax check button will be made available in order to
@@ -101,6 +104,16 @@ This may result in too much rights being granted to users since from an ACL stan
 of the 'group.group_user' ACL's and the ACLs of their role(s).
 
 A removal of regular users from the 'base.group_user' group is currently under investigation.
+
+ACLs
+----
+
+The only objects that are available when creating a new user are the object with a
+
+- global ACL (e.g. 'res_company_grwithout group (e.g. res_country group_user_all which grants read access on res.country)
+- 'base.group_user' ACL (e.g. ir_ui_menu group_user which grants read access on ir.ui.menu)
+
+When adding a user to one or more roles, this user will also get all the ACL rights defined within his role(s).
 
 Multi-Company setup
 -------------------
