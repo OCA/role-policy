@@ -37,6 +37,14 @@ class ResRoleAcl(models.Model):
         self._create_role_acl(vals)
         return super().create(vals)
 
+    def unlink(self):
+        self._unlink_role_acl()
+        return super().unlink()
+
+    def write(self, vals):
+        self._update_role_acl(vals)
+        return super().write(vals)
+
     def _create_role_acl(self, vals):
         role = self.env["res.role"].browse(vals["role_id"])
         model = self.env["ir.model"].browse(vals["model_id"])
@@ -47,9 +55,14 @@ class ResRoleAcl(models.Model):
         access = self._compute_access(model, crud, acl_group)
         vals.update({"name": name, "group_id": acl_group.id, "access_id": access.id})
 
-    def write(self, vals):
-        self._update_role_acl(vals)
-        return super().write(vals)
+    def _unlink_role_acl(self):
+        for acl in self:
+            acl.role_id.group_id.implied_ids -= acl.group_id
+            for user in acl.group_id.users:
+                extra_roles = user.role_ids - acl.role_id
+                if acl.group_id in extra_roles.mapped('group_id.implied_ids'):
+                    continue
+                acl.group_id.users -= user
 
     def _update_role_acl(self, vals):
         for acl in self:
