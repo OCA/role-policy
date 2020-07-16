@@ -1,11 +1,13 @@
 # Copyright 2020 Noviat
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
+from collections import defaultdict
 import logging
+from lxml import etree
 
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
-from odoo.tools import safe_eval
+from odoo.tools import safe_eval, locate_node
 
 _logger = logging.getLogger(__name__)
 
@@ -40,7 +42,7 @@ class WebModifierRule(models.Model):
     view_xml_id = fields.Char(
         string="View External Identifier", related="view_id.xml_id", store=True
     )
-    view_type = fields.Selection(selection="_selection_view_type", required=True)
+    view_type = fields.Selection(selection="_selection_view_type")
     element_ui = fields.Char(
         string="Element",
         help="Specify the view element. E.g."
@@ -179,27 +181,160 @@ class WebModifierRule(models.Model):
             err += _('e.g. name="%(sale.act_res_partner_2_sale_order)d"')
             line_errors.append(err)
 
+    @api.constrains("view_id", "view_type")
+    def _check_view(self):
+        for rule in self:
+            if rule.view_id:
+                if rule.viev_type != rule.view_id.type:
+                    raise UserError(_(
+                        "Error in rule with ID %s: "
+                        "view_type is not consistent with view."
+                    ) % rule.id)
+            else:
+                if rule.remove:
+                    raise UserError(_(
+                        "Error in rule with ID %s: "
+                        "'Remove' requires to define a view."
+                    ) % rule.id)
+
     @api.constrains("modifier_invisible", "modifier_readonly", "modifier_required")
     def _check_modifier(self):
         """TODO: add checks on modifier syntax"""
         pass
 
-    def _get_rules(self, model, view_id, remove=False):
+    @api.onchange('view_id')
+    def _onchange_view_id(self):
+        self.view_type = self.view_id.type
+        if not self.view_id:
+            self.remove = False
+
+    def _register_hook(self):
+        """
+        Similar approach as in standard addons, module 'base_automation'.
+        """
+
+        def role_policy_fields_view_get():
+            """
+            Instanciate a fields_view_get method that processes
+            view modifier rules.
+            We use this technique only for those rules that have no view_id
+            specified (e.g. to hide a specific button or field from all views
+            on an object).
+            Security errors may occur since we post-process the fields_view_get
+            output (when hitting an ACL error on a field, you should remove the
+            field explicitly from the view by specifying the view_id).
+            """
+
+            @api.model
+            def fields_view_get(
+                self, view_id=None, view_type="form", toolbar=False, submenu=False
+            ):
+                res = fields_view_get.origin(
+                    self,
+                    view_id=view_id,
+                    view_type=view_type,
+                    toolbar=toolbar,
+                    submenu=submenu,
+                )
+                arch_node = etree.fromstring(res["arch"])
+
+                rules = self.env["web.modifier.rule"]._get_rules(
+                    self._name, False, view_type=False, remove=False,
+                    call_method='fields_view_get')
+                arch_update = False
+                for rule in rules:
+                    try:
+                        rule_node = etree.fromstring("<{}/>".format(rule.element))
+                    except Exception:
+                        raise UserError(
+                            _("Incorrect element defintion in rule %s " "of role %s.")
+                            % (rule, rule.role_id.code)
+                        )
+                    view_node = locate_node(arch_node, rule_node)
+                    if view_node is not None:
+                        _logger.debug(
+                            "fields_view_get, view_id=%s, view_type=%s,"
+                            "rule_id=%s, element=%s, modifiers before rule = %s",
+                            view_id,
+                            view_type,
+                            rule.id,
+                            rule.element,
+                            view_node.attrib.get("modifiers"),
+                        )
+                        modifiers = ""
+                        for mod in [
+                            "modifier_invisible",
+                            "modifier_readonly",
+                            "modifier_required",
+                        ]:
+                            rule_mod = getattr(rule, mod)
+                            modifier = mod[9:]
+                            if rule_mod:
+                                modifiers += '"{}": {}'.format(modifier, rule_mod)
+                        view_node.attrib["modifiers"] = "{" + modifiers + "}"
+                        _logger.debug(
+                            "fields_view_get, view_id=%s, view_type=%s,"
+                            "rule_id=%s, element=%s, modifiers after rule = %s",
+                            view_id,
+                            view_type,
+                            rule.id,
+                            rule.element,
+                            view_node.attrib.get("modifiers"),
+                        )
+                        arch_update = True
+                if arch_update:
+                    res["arch"] = etree.tostring(arch_node)
+                return res
+
+            return fields_view_get
+
+        rules = self.with_context({}).search([('view_id', '=', False)])
+        patched_models = defaultdict(set)
+
+        def patch(model, name, method):
+
+            if model not in patched_models[name]:
+                patched_models[name].add(model)
+                model._patch_method(name, method)
+
+        for rule in rules:
+            model_name = rule.model_id.model
+            model = self.env.get(model_name)
+            # Do not crash if the model of the rule was uninstalled
+            if model is None:
+                _logger.error(
+                    _("Model %s of rule %s does not exist.") % (model_name, rule)
+                )
+                continue
+            patch(model, "fields_view_get", role_policy_fields_view_get())
+
+    def _get_rules(self, model, view_id, view_type=False, remove=False,
+                   call_method=False):
         signature_fields = self.env["web.modifier.rule"]._rule_signature_fields()
-        order = ",".join(signature_fields) + ",priority"
-        view = self.env["ir.ui.view"].browse(view_id)
         dom = [
             ("model", "=", model),
             ("role_id", "in", self.env.user.role_ids.ids),
             ("remove", "=", remove),
-            "|",
-            ("view_id", "=", view_id),
-            ("view_id", "=", False),
-            "|",
-            ("view_type", "=", view.type),
-            ("view_type", "=", False),
         ]
-        all_rules = self.env["web.modifier.rule"].search(dom, order=order)
+        if call_method == 'fields_view_get':
+            dom += [
+                '|',
+                ('view_id', '=', view_id),
+                ('view_id', '=', False),
+                '|',
+                ('view_type', '=', view_type),
+                ('view_type', '=', False),
+            ]
+        else:
+            dom += [
+                ('view_id', '=', view_id),
+                ('view_type', '=', view_type),
+            ]
+        all_rules = self.env["web.modifier.rule"].search(dom)
+        all_rules = all_rules.sorted(
+            key=lambda r:
+            (r.element, r.view_id or '0', r.view_type or '0', r.priority)
+        )
         if all_rules:
             for i, rule in enumerate(all_rules):
                 if i == 0:

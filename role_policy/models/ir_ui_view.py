@@ -49,7 +49,7 @@ class IrUiView(models.Model):
         return archs
 
     def _apply_web_modifier_rules(self, view_id, model, archs):
-        rules = self.env["web.modifier.rule"]._get_rules(model, view_id, remove=False)
+        rules = self.env["web.modifier.rule"]._get_rules(model, view_id)
         template_modifier = '<attribute name="{}">{}</attribute>'
         template_attrs = '<attribute name="attrs">{{"{}": {}}}</attribute>'
         for rule in rules:
