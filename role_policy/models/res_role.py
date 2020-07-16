@@ -102,7 +102,7 @@ class ResRole(models.Model):
                 if role.code != vals["code"] and role.acl_ids:
                     raise UserError(_("You are not allowed to update the code."))
             if "user_ids" in vals:
-                role.group_id.write({"users": vals["user_ids"]})
+                self._update_role_groups(role, vals)
             updates = []
             role_gid = role.group_id.id
             for f in ["menu_ids", "act_window_ids", "act_server_ids", "act_report_ids"]:
@@ -123,6 +123,25 @@ class ResRole(models.Model):
             rs = self.env[model].browse(model_ids)
             rs.write({"groups_id": command})
         return res
+
+    def _update_role_groups(self, role, vals):
+        role.group_id.write({"users": vals["user_ids"]})
+        # remove user from role_acl groups
+        for entry in vals["user_ids"]:
+            if entry[0] == 6:
+                removals = role.user_ids.filtered(
+                    lambda r: r.id not in entry[2])
+                for user in removals:
+                    extra_roles = user.role_ids - role
+                    extra_roles_acl_groups = \
+                        extra_roles.mapped('group_id.implied_ids')
+                    for role_acl_group in role.group_id.implied_ids:
+                        if role_acl_group in extra_roles_acl_groups:
+                            continue
+                        role_acl_group.users -= user
+            else:
+                # TODO
+                raise NotImplementedError
 
     def unlink(self):
         role_groups = self.mapped("group_id")
