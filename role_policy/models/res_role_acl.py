@@ -15,7 +15,12 @@ class ResRoleAcl(models.Model):
     _description = "Role ACL"
     _order = "name"
     _sql_constraints = [
-        ("name_uniq", "unique(name, company_id)", "The Name must be unique")
+        ("name_uniq", "unique(name, company_id)", "The Name must be unique"),
+        (
+            "crud_nut_null",
+            "CHECK(perm_read OR perm_write OR perm_create OR perm_unlink)",
+            "At least one modifier must be set !",
+        ),
     ]
 
     name = fields.Char(readonly=True)
@@ -60,7 +65,7 @@ class ResRoleAcl(models.Model):
             acl.role_id.group_id.implied_ids -= acl.group_id
             for user in acl.group_id.users:
                 extra_roles = user.role_ids - acl.role_id
-                if acl.group_id in extra_roles.mapped('group_id.implied_ids'):
+                if acl.group_id in extra_roles.mapped("group_id.implied_ids"):
                     continue
                 acl.group_id.users -= user
 

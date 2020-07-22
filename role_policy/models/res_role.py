@@ -129,12 +129,10 @@ class ResRole(models.Model):
         # remove user from role_acl groups
         for entry in vals["user_ids"]:
             if entry[0] == 6:
-                removals = role.user_ids.filtered(
-                    lambda r: r.id not in entry[2])
+                removals = role.user_ids.filtered(lambda r: r.id not in entry[2])
                 for user in removals:
                     extra_roles = user.role_ids - role
-                    extra_roles_acl_groups = \
-                        extra_roles.mapped('group_id.implied_ids')
+                    extra_roles_acl_groups = extra_roles.mapped("group_id.implied_ids")
                     for role_acl_group in role.group_id.implied_ids:
                         if role_acl_group in extra_roles_acl_groups:
                             continue

@@ -1,13 +1,14 @@
 # Copyright 2020 Noviat
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
-from collections import defaultdict
 import logging
+from collections import defaultdict
+
 from lxml import etree
 
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
-from odoo.tools import safe_eval, locate_node
+from odoo.tools import locate_node, safe_eval
 
 _logger = logging.getLogger(__name__)
 
@@ -186,23 +187,29 @@ class WebModifierRule(models.Model):
         for rule in self:
             if rule.view_id:
                 if rule.viev_type != rule.view_id.type:
-                    raise UserError(_(
-                        "Error in rule with ID %s: "
-                        "view_type is not consistent with view."
-                    ) % rule.id)
+                    raise UserError(
+                        _(
+                            "Error in rule with ID %s: "
+                            "view_type is not consistent with view."
+                        )
+                        % rule.id
+                    )
             else:
                 if rule.remove:
-                    raise UserError(_(
-                        "Error in rule with ID %s: "
-                        "'Remove' requires to define a view."
-                    ) % rule.id)
+                    raise UserError(
+                        _(
+                            "Error in rule with ID %s: "
+                            "'Remove' requires to define a view."
+                        )
+                        % rule.id
+                    )
 
     @api.constrains("modifier_invisible", "modifier_readonly", "modifier_required")
     def _check_modifier(self):
         """TODO: add checks on modifier syntax"""
         pass
 
-    @api.onchange('view_id')
+    @api.onchange("view_id")
     def _onchange_view_id(self):
         self.view_type = self.view_id.type
         if not self.view_id:
@@ -239,8 +246,12 @@ class WebModifierRule(models.Model):
                 arch_node = etree.fromstring(res["arch"])
 
                 rules = self.env["web.modifier.rule"]._get_rules(
-                    self._name, False, view_type=False, remove=False,
-                    call_method='fields_view_get')
+                    self._name,
+                    False,
+                    view_type=False,
+                    remove=False,
+                    call_method="fields_view_get",
+                )
                 arch_update = False
                 for rule in rules:
                     try:
@@ -288,7 +299,7 @@ class WebModifierRule(models.Model):
 
             return fields_view_get
 
-        rules = self.with_context({}).search([('view_id', '=', False)])
+        rules = self.with_context({}).search([("view_id", "=", False)])
         patched_models = defaultdict(set)
 
         def patch(model, name, method):
@@ -308,32 +319,29 @@ class WebModifierRule(models.Model):
                 continue
             patch(model, "fields_view_get", role_policy_fields_view_get())
 
-    def _get_rules(self, model, view_id, view_type=False, remove=False,
-                   call_method=False):
+    def _get_rules(
+        self, model, view_id, view_type=False, remove=False, call_method=False
+    ):
         signature_fields = self.env["web.modifier.rule"]._rule_signature_fields()
         dom = [
             ("model", "=", model),
             ("role_id", "in", self.env.user.role_ids.ids),
             ("remove", "=", remove),
         ]
-        if call_method == 'fields_view_get':
+        if call_method == "fields_view_get":
             dom += [
-                '|',
-                ('view_id', '=', view_id),
-                ('view_id', '=', False),
-                '|',
-                ('view_type', '=', view_type),
-                ('view_type', '=', False),
+                "|",
+                ("view_id", "=", view_id),
+                ("view_id", "=", False),
+                "|",
+                ("view_type", "=", view_type),
+                ("view_type", "=", False),
             ]
         else:
-            dom += [
-                ('view_id', '=', view_id),
-                ('view_type', '=', view_type),
-            ]
+            dom += [("view_id", "=", view_id), ("view_type", "=", view_type)]
         all_rules = self.env["web.modifier.rule"].search(dom)
         all_rules = all_rules.sorted(
-            key=lambda r:
-            (r.element, r.view_id or '0', r.view_type or '0', r.priority)
+            key=lambda r: (r.element, r.view_id or "0", r.view_type or "0", r.priority)
         )
         if all_rules:
             for i, rule in enumerate(all_rules):
