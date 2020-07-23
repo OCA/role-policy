@@ -186,7 +186,7 @@ class WebModifierRule(models.Model):
     def _check_view(self):
         for rule in self:
             if rule.view_id:
-                if rule.viev_type != rule.view_id.type:
+                if rule.view_type != rule.view_id.type:
                     raise UserError(
                         _(
                             "Error in rule with ID %s: "
