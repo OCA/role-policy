@@ -164,10 +164,10 @@ class WebModifierRule(models.Model):
                     % self.element_ui
                 )
             else:
-                name = quote_char + str(act_id[1]) + quote_char
+                name = str(act_id[1])
         else:
             self._check_element_ui_button_name(name, line_errors)
-        return name
+        return quote_char + name + quote_char
 
     def _check_element_ui_button_name(self, name, line_errors):
         try:
