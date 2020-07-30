@@ -29,7 +29,13 @@ class IrUiView(models.Model):
 
     def read_combined(self, fields=None):
         res = super().read_combined(fields=fields)
-        res["arch"] = self._remove_security_groups(res["arch"])
+        if not self.model:
+            return res
+        archs = [(res["arch"], self.id)]
+        archs = self._apply_web_modifier_remove_rules(self.model, archs)
+        archs = self._apply_web_modifier_rules(self.model, archs)
+        arch = self._remove_security_groups(archs[0][0])
+        res["arch"] = arch
         return res
 
     def _apply_group(self, model, node, modifiers, fields):
@@ -44,29 +50,9 @@ class IrUiView(models.Model):
     def get_inheriting_views_arch(self, view_id, model):
         archs = super().get_inheriting_views_arch(view_id, model)
         if model:
-            self._apply_web_modifier_rules(view_id, model, archs)
             archs = self._apply_web_modifier_remove_rules(model, archs)
+            archs = self._apply_web_modifier_rules(model, archs)
         return archs
-
-    def _apply_web_modifier_rules(self, view_id, model, archs):
-        rules = self.env["web.modifier.rule"]._get_rules(model, view_id)
-        template_modifier = '<attribute name="{}">{}</attribute>'
-        template_attrs = '<attribute name="attrs">{{"{}": {}}}</attribute>'
-        for rule in rules:
-            rule_arch = '<{} position="attributes">'.format(rule.element)
-            mod_arch = False
-            for mod in ["modifier_invisible", "modifier_readonly", "modifier_required"]:
-                rule_mod = getattr(rule, mod)
-                modifier = mod[9:]
-                if rule_mod in ["0", "1"]:
-                    mod_arch = template_modifier.format(modifier, int(rule_mod))
-                    rule_arch += mod_arch
-                elif rule_mod:
-                    mod_arch = template_attrs.format(modifier, rule_mod)
-                    rule_arch += mod_arch
-            if mod_arch:
-                rule_arch += "</{}>".format(rule.element.split()[0])
-                archs.append((rule_arch, False))
 
     def _apply_web_modifier_remove_rules(self, model, archs_in):
         archs = archs_in[:]
@@ -105,6 +91,56 @@ class IrUiView(models.Model):
             del archs[i]
         return archs
 
+    def _apply_web_modifier_rules(self, model, archs_in):
+        archs = []
+        for (arch, view_id) in archs_in:
+            view = self.browse(view_id)
+            rules = self.env["web.modifier.rule"]._get_rules(
+                model, view_id, view_type=view.type
+            )
+            for rule in rules:
+                arch_node = etree.fromstring(arch)
+                el = rule.element
+                try:
+                    if el[:5] == "xpath":
+                        expr = el.split("expr=")[1]
+                    else:
+                        parts = el.split(" ")
+                        tag = parts[0].strip()
+                        attrib, val = parts[1].strip().split("=")
+                        attrib = attrib.strip()
+                        val = val.strip()[1:-1]
+                        expr = "//{}[@{}='{}']".format(tag, attrib, val)
+                except Exception:
+                    raise UserError(
+                        _("Incorrect element definition in rule %s of role %s.")
+                        % (rule, rule.role_id.code)
+                    )
+                expr = "({})[1]".format(expr)
+                rule_node = arch_node.xpath(expr)
+                if not rule_node:
+                    continue
+                rule_node = rule_node[0]
+                attrs = []
+                rule_node.attrib.pop("attrs", None)
+                for mod in [
+                    "modifier_invisible",
+                    "modifier_readonly",
+                    "modifier_required",
+                ]:
+                    rule_mod = getattr(rule, mod)
+                    modifier = mod[9:]
+                    rule_node.attrib.pop(modifier, None)
+                    if rule_mod in ["0", "1"]:
+                        rule_node.set(modifier, rule_mod)
+                    elif rule_mod:
+                        attrs.append((modifier, rule_mod))
+                if attrs:
+                    rule_node.set("attrs", ", ".join(attrs))
+                arch = etree.tostring(arch_node, encoding="unicode")
+            archs.append((arch, view_id))
+        return archs
+
     @api.model
     def apply_inheritance_specs(
         self, source, specs_tree, inherit_id, pre_locate=lambda s: True
@@ -115,17 +151,12 @@ class IrUiView(models.Model):
         cf. base/models/ir.ui.view.py, method raise_view_error:
                 _logger.info(message)
         """
-        if not inherit_id:
-            try:
-                source = super().apply_inheritance_specs(
-                    source, specs_tree, inherit_id, pre_locate=pre_locate
-                )
-            except ValueError:
-                source = source
-        else:
+        try:
             source = super().apply_inheritance_specs(
                 source, specs_tree, inherit_id, pre_locate=pre_locate
             )
+        except ValueError:
+            source = source
         return self._remove_security_groups(source)
 
     def _remove_security_groups(self, source):

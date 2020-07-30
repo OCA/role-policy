@@ -26,14 +26,14 @@
         <field name="model_id"/>
         <field name="model" optional="hide"/>
         <field name="priority" string="Prio"/>
-        <field name="view_id"
-               attrs="{'required': [('remove', '=', True)]}"/>
+        <field name="view_id"/>
+               <!--attrs="{'required': [('remove', '=', True)]}"/-->
         <field name="view_xml_id" optional="hide"/>
-        <field name="view_type"
-               attrs="{'required': [('view_id', '!=', False)]}"/>
+        <field name="view_type"/>
+               <!--attrs="{'required': [('view_id', '!=', False)]}"/-->
         <field name="element_ui"/>
-        <field name="remove"
-               attrs="{'invisible': [('view_id', '=', False)]}"/>
+        <field name="remove"/>
+               <!--attrs="{'invisible': [('view_id', '=', False)]}"/>-->
         <field name="modifier_invisible"/>
         <field name="modifier_readonly"/>
         <field name="modifier_required"/>
