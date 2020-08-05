@@ -7,7 +7,7 @@ from lxml import etree
 
 from odoo import _, api, models
 from odoo.exceptions import UserError
-from odoo.tools import locate_node
+from odoo.tools import locate_node, safe_eval
 
 _logger = logging.getLogger(__name__)
 
@@ -103,7 +103,7 @@ class IrUiView(models.Model):
                 el = rule.element
                 try:
                     if el[:5] == "xpath":
-                        expr = el.split("expr=")[1]
+                        expr = safe_eval(el.split("expr=")[1])
                     else:
                         parts = el.split(" ")
                         tag = parts[0].strip()
