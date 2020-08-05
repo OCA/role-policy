@@ -3,6 +3,7 @@ from . import ir_actions
 from . import ir_model_access
 from . import ir_ui_menu
 from . import ir_ui_view
+from . import model_method_execution_right
 from . import res_groups
 from . import res_role
 from . import res_role_acl

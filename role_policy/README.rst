@@ -103,6 +103,42 @@ check the syntax with autocorrection where feasible.
 
 |
 
+Model Methods
+-------------
+
+Via the "Model Methods" tab you can grant execution rights to a set of predefined methods on ORM models.
+
+The 'role_policy' base module provides the framework for this feature.
+Application specific modules are required to extend the predefined set of methods.
+
+Adding extra methods requires only a few lines of code.
+It consists of extending a selection list with the Model Method,
+adding a role_policy lookup to the method and pass the 'role_policy_has_groups_ok' context.
+
+|
+
+e.g. the module 'role_policy_account' adds the account.move,post method to this list.
+
+|
+
+.. code-block::
+
+    class AccountMove(models.Model):
+        _inherit = "account.move"
+
+        def post(self):
+            self.env["model.method.execution.right"].check_right(
+                "account.move,post", raise_exception=True
+            )
+            ctx = dict(self.env.context, role_policy_has_groups_ok=True)
+            self = self.with_context(ctx)
+            return super().post()
+
+
+Methods defined in this set are available only for those roles have added them in the "Model Methods" notebook page.
+
+|
+
 User Types / Internal User
 --------------------------
 
@@ -120,7 +156,7 @@ A removal of regular users from the 'base.group_user' group is currently under i
 ACLs
 ----
 
-The only objects that are available when creating a new user are the object with a
+The only objects that are available when creating a new user are the objects with a
 
 - global ACL (e.g. 'res_company_grwithout group (e.g. res_country group_user_all which grants read access on res.country)
 - 'base.group_user' ACL (e.g. ir_ui_menu group_user which grants read access on ir.ui.menu)

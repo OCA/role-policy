@@ -18,6 +18,7 @@ class RolePolicyExportXls(models.AbstractModel):
             "act_server",
             "act_report",
             "modifier_rule",
+            "model_method",
         ]:
             method = getattr(self, "_get_ws_params_{}".format(entry))
             method_params = method(data, role)
@@ -438,5 +439,60 @@ class RolePolicyExportXls(models.AbstractModel):
                 ws_params,
                 col_specs_section="data",
                 render_space={"rule": rule},
+                default_format=self.format_tcell_left,
+            )
+
+    def _get_ws_params_model_method(self, data, role):
+
+        method_template = {
+            "name": {
+                "header": {"value": "Model,Method"},
+                "data": {"value": self._render("entry.name")},
+                "width": 60,
+            },
+            "active": {
+                "header": {"value": "Active"},
+                "data": {"value": self._render("entry.active and 1 or 0")},
+                "width": 6,
+            },
+        }
+
+        params = {
+            "ws_name": "Model Methods",
+            "generate_ws_method": "_export_model_method",
+            "title": "Model Methods",
+            "wanted_list": [k for k in method_template],
+            "col_specs": method_template,
+        }
+
+        return params
+
+    def _export_model_method(self, workbook, ws, ws_params, data, role):
+
+        ws.set_portrait()
+        ws.fit_to_pages(1, 0)
+        ws.set_header(self.xls_headers["standard"])
+        ws.set_footer(self.xls_footers["standard"])
+
+        self._set_column_width(ws, ws_params)
+
+        row_pos = 0
+        # row_pos = self._write_ws_title(ws, row_pos, ws_params)
+        row_pos = self._write_line(
+            ws,
+            row_pos,
+            ws_params,
+            col_specs_section="header",
+            default_format=self.format_theader_yellow_left,
+        )
+        ws.freeze_panes(row_pos, 0)
+
+        for entry in role.model_method_ids:
+            row_pos = self._write_line(
+                ws,
+                row_pos,
+                ws_params,
+                col_specs_section="data",
+                render_space={"entry": entry},
                 default_format=self.format_tcell_left,
             )

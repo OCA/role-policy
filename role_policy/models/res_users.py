@@ -32,3 +32,10 @@ class ResUsers(models.Model):
             for user in self:
                 user.groups_id = group_user + user.role_ids.mapped("group_id")
         return res
+
+    @api.model
+    def _has_group(self, group_ext_id):
+        if self.env.context.get("role_policy_has_groups_ok"):
+            return True
+        else:
+            return super()._has_group(group_ext_id)

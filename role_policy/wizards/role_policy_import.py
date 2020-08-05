@@ -52,6 +52,7 @@ class RolePolicyImport(models.TransientModel):
             ("act_server", "Server Actions"),
             ("act_report", "Report Actions"),
             ("modifier_rule", "View Modifier Rules"),
+            ("model_method", "Model Methods"),
             # ('record_rule', 'Record Rules'),
         ]
 
@@ -466,6 +467,78 @@ class RolePolicyImport(models.TransientModel):
                 to_unlink.unlink()
             if to_create:
                 self.env["web.modifier.rule"].create(to_create)
+        return err_log
+
+    def _read_model_method(self, sheet, role):
+        header = ["Model,Method", "Active"]
+        headerline = sheet.row_values(0)
+        err_log = self._check_sheet_header(sheet, header, headerline)
+        if err_log:
+            return err_log
+        unlink_pos = len(header)
+        unlink_column = (
+            len(headerline) > unlink_pos and headerline[unlink_pos] == "Delete Entry"
+        )
+
+        to_unlink = self.env["model.method.execution.right"]
+        to_update = []
+        to_create = []
+
+        for ri in range(1, sheet.nrows):
+            ln = sheet.row_values(ri)
+            if not ln or ln[0] and ln[0][0] == "#" or not any(ln):
+                continue
+            line_errors = []
+            name = ln[0].lower().replace(" ", "")
+            active = self._read_0_1(ln[1], "Active", sheet.cell(ri, 1), line_errors)
+            vals = {"role_id": role.id, "name": name, "active": active}
+            line_action = False
+            model_method = role.model_method_ids.filtered(lambda r: r.name == name)
+            if unlink_column:
+                unlink = ln[unlink_pos]
+                if unlink not in ["X", "x", ""]:
+                    line_errors.append(
+                        _(
+                            "Incorrect value '%s' for field 'Delete Entry'. "
+                            "The value should be 'X' or empty."
+                        )
+                        % unlink
+                    )
+                if unlink:
+                    if not model_method:
+                        line_errors.append(
+                            _(
+                                "Incorrect value '%s' for field 'Delete Entry'. "
+                                "You cannot remove a Model Method which doesn't exist."
+                            )
+                            % unlink
+                        )
+                    else:
+                        line_action = "delete"
+                        to_unlink += model_method
+            if not model_method:
+                line_action = "create"
+            if (
+                model_method
+                and line_action != "delete"
+                and model_method.active != active
+            ):
+                to_update.append((model_method, {"active": active}))
+            if line_action == "create":
+                if vals not in to_create:
+                    to_create.append(vals)
+                else:
+                    line_errors.append(_("Duplicate entry.") % ln)
+            if line_errors:
+                if err_log:
+                    err_log += "\n\n"
+                err_log = self._format_line_errors(ln, line_errors)
+
+        if not err_log:
+            to_unlink.unlink()
+            self.env["model.method.execution.right"].create(to_create)
+            for update in to_update:
+                update[0].update(update[1])
         return err_log
 
     def _check_sheet_header(self, sheet, header, headerline):

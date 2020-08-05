@@ -103,6 +103,16 @@
             <page string="View Modifier Rules" id="modifier_rule_ids">
               <field name="modifier_rule_ids"/>
             </page>
+            <page string="Model Methods" id="model_method_ids">
+              <field name="model_method_ids">
+                <tree editable="top">
+                  <field name="name"/>
+                  <field name="model_id"/>
+                  <field name="method"/>
+                  <field name="active"/>
+                </tree>
+              </field>
+            </page>
             <page string="Record Rules" id="record_rule_ids">
               <p>
                 This functionality is planned for a later release.<br/>

@@ -61,6 +61,11 @@ class ResRole(models.Model):
         column2="uid",
         string="Users",
     )
+    model_method_ids = fields.One2many(
+        comodel_name="model.method.execution.right",
+        inverse_name="role_id",
+        string="Method Execution Rights",
+    )
     sequence = fields.Integer()
     active = fields.Boolean(default=True)
     company_id = fields.Many2one(
