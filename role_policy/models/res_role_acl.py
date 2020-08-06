@@ -19,7 +19,7 @@ class ResRoleAcl(models.Model):
         (
             "crud_nut_null",
             "CHECK(perm_read OR perm_write OR perm_create OR perm_unlink)",
-            "At least one modifier must be set !",
+            "At least one access must be set !",
         ),
     ]
 
