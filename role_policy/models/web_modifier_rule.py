@@ -115,37 +115,47 @@ class WebModifierRule(models.Model):
             but with replacement of XML Id by DB Id for actions buttons.
         """
         element = element_ui = self.element_ui
-        if element_ui:
-            if element_ui[:5] == "xpath":
-                to_update = False
-                parts = element_ui.split("button[@name=")
+        if not element:
+            return element
+        if element_ui[:5] == "xpath":
+            to_update = False
+            if "button" in element_ui:
+                parts = element_ui.split("button[")
                 for i, part in enumerate(parts[1:], start=1):
-                    name, remaining = part.split("]")
+                    attribs, remaining = part.split("]", 1)
+                    # we support xml_id resolution only for the "=" operator
+                    pos = attribs.find("@name=")
+                    if pos < 0:
+                        break
+                    name_start = pos + 7
+                    quote_char = attribs[pos + 6]
+                    pos = attribs[name_start:].find(quote_char)
+                    if pos < 0:
+                        break
+                    name_stop = name_start + pos
+                    name = attribs[name_start:name_stop]
                     name2 = self._resolve_rule_element_button_name(name, line_errors)
                     if name2 != name:
                         to_update = True
-                        parts[i] = "]".join([name2, remaining])
+                        name_attrib = "@name=" + quote_char + name2 + quote_char
+                        attribs = (
+                            attribs[:name_start] + name_attrib + attribs[name_stop:]
+                        )
+                        parts[i] = "]".join([attribs, remaining])
                 if to_update:
-                    element = "button[@name=".join(parts)
-            elif element_ui[:7] == "button ":
-                parts = element_ui.split("name=")
-                if len(parts) > 1:
-                    part1 = parts[1].split(" ", 1)
-                    name = part1[0]
-                    if len(part1) == 2:
-                        remaining = part1[1]
-                    else:
-                        remaining = False
-                    name2 = self._resolve_rule_element_button_name(name, line_errors)
-                    if name2 != name:
-                        element = "name=".join([parts[0], name2])
-                        if remaining:
-                            element += " " + remaining
+                    element = "button[".join(parts)
+        elif element_ui[:7] == "button ":
+            parts = element_ui.split("name=")
+            if len(parts) != 2:
+                return element
+            quote_char = parts[1][0]
+            name = parts[1][1:-1]
+            name2 = self._resolve_rule_element_button_name(name, line_errors)
+            if name2 != name:
+                element = "button name=" + quote_char + name2 + quote_char
         return element
 
     def _resolve_rule_element_button_name(self, name, line_errors):
-        quote_char = name[0]
-        name = safe_eval(name)
         if name[:2] == "%(" and name[-2:] == ")d":
             xml_id = name[2:-2]
             act_id = self.env["ir.model.data"].xmlid_to_res_model_res_id(
@@ -164,7 +174,7 @@ class WebModifierRule(models.Model):
                 name = str(act_id[1])
         else:
             self._check_element_ui_button_name(name, line_errors)
-        return quote_char + name + quote_char
+        return name
 
     def _check_element_ui_button_name(self, name, line_errors):
         try:
