@@ -136,7 +136,8 @@ class IrUiView(models.Model):
                     elif rule_mod:
                         attrs.append((modifier, rule_mod))
                 if attrs:
-                    rule_node.set("attrs", ", ".join(attrs))
+                    attrs = ", ".join(["'{}': {}".format(x[0], x[1]) for x in attrs])
+                    rule_node.set("attrs", "{" + attrs + "}")
                 arch = etree.tostring(arch_node, encoding="unicode")
             archs.append((arch, view_id))
         return archs
