@@ -34,7 +34,10 @@ class IrUiView(models.Model):
         archs = [(res["arch"], self.id)]
         archs = self._apply_web_modifier_remove_rules(self.model, archs)
         archs = self._apply_web_modifier_rules(self.model, archs)
-        arch = self._remove_security_groups(archs[0][0])
+        if archs:
+            arch = self._remove_security_groups(archs[0][0])
+        else:
+            arch = self._no_access_view_arch(res)
         res["arch"] = arch
         return res
 
@@ -166,3 +169,11 @@ class IrUiView(models.Model):
             return s0 + self._remove_security_groups(s2)
         else:
             return source
+
+    def _no_access_view_arch(self, view_dict):
+        if view_dict["type"] == "form":
+            message = _("Your are not allowed to view this information.")
+            arch = "<form>%s</form>" % message
+        else:
+            raise NotImplementedError
+        return arch
