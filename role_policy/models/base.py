@@ -22,7 +22,8 @@ class BaseModel(models.AbstractModel):
 
         role_groups = []
         for group_ext_id in groups.split(","):
-            if group_ext_id in [
+            xml_id = group_ext_id[0] == "!" and group_ext_id[1:] or group_ext_id
+            if xml_id in [
                 "base.group_no_one",
                 "base.group_erp_manager",
                 "base.group_system",
@@ -31,7 +32,7 @@ class BaseModel(models.AbstractModel):
             ]:
                 role_groups.append(group_ext_id)
             else:
-                group = self.env.ref(group_ext_id)
+                group = self.env.ref(xml_id)
                 if group.role:
                     role_groups.append(group_ext_id)
         if not role_groups:
