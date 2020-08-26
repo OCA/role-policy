@@ -49,9 +49,8 @@ class IrUiView(models.Model):
     @api.model
     def get_inheriting_views_arch(self, view_id, model):
         archs = super().get_inheriting_views_arch(view_id, model)
-        if model:
-            archs = self._apply_web_modifier_remove_rules(model, archs)
-            archs = self._apply_web_modifier_rules(model, archs)
+        archs = self._apply_web_modifier_remove_rules(model, archs)
+        archs = self._apply_web_modifier_rules(model, archs)
         return archs
 
     def _apply_web_modifier_remove_rules(self, model, archs_in):

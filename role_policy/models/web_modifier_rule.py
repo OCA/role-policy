@@ -23,7 +23,7 @@ class WebModifierRule(models.Model):
     ]
 
     role_id = fields.Many2one(string="Role", comodel_name="res.role", required=True)
-    model_id = fields.Many2one(comodel_name="ir.model", required=True, string="Model")
+    model_id = fields.Many2one(comodel_name="ir.model", string="Model")
     model = fields.Char(related="model_id.model", store=True, string="model_name")
     sequence = fields.Integer(default=16, required=True)
     priority = fields.Integer(
@@ -221,6 +221,11 @@ class WebModifierRule(models.Model):
         self.view_type = self.view_id.type
         if not self.view_id:
             self.remove = False
+
+    @api.onchange("view_type")
+    def _onchange_view_type(self):
+        if self.view_type == "qweb":
+            self.model_id = False
 
     def _get_rules(self, model, view_id, view_type=False, remove=False):
         signature_fields = self.env["web.modifier.rule"]._rule_signature_fields()
