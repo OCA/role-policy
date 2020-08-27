@@ -345,11 +345,7 @@ class RolePolicyImport(models.TransientModel):
             if model_name in self.env:
                 model_id = self.env["ir.model"]._get_id(model_name)
             else:
-                line_errors.append(_("Model '%s' does not exist.") % model_name)
-                if err_log:
-                    err_log += "\n\n"
-                err_log = self._format_line_errors(ln, line_errors)
-                continue
+                model_id = False
             prio = self._read_integer(
                 ln[1], "Prio", line_errors, required=True, positive=True
             )
@@ -359,6 +355,12 @@ class RolePolicyImport(models.TransientModel):
             else:
                 view_id = False
             view_type = ln[4].strip() or False
+            if not model_id and view_type != "qweb":
+                line_errors.append(_("Model '%s' does not exist.") % model_name)
+                if err_log:
+                    err_log += "\n\n"
+                err_log = self._format_line_errors(ln, line_errors)
+                continue
             element_ui = ln[5].strip() or False
             cell = sheet.cell(ri, 6)
             remove = cell.value
