@@ -569,6 +569,7 @@ class RolePolicyImport(models.TransientModel):
         return res or False
 
     def _read_0_1(self, val, col, cell, line_errors):
+        res = ""
         if cell.ctype == xlrd.XL_CELL_TEXT:
             res = cell.value
         elif cell.ctype == xlrd.XL_CELL_NUMBER:
