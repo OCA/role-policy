@@ -240,7 +240,12 @@ class WebModifierRule(models.Model):
             dom += ["|", ("view_type", "=", view_type), ("view_type", "=", False)]
         all_rules = self.env["web.modifier.rule"].search(dom)
         all_rules = all_rules.sorted(
-            key=lambda r: (r.element, r.view_id.id or 0, r.view_type or "0", r.priority)
+            key=lambda r: (
+                r.element or "",
+                r.view_id.id or 0,
+                r.view_type or "0",
+                r.priority,
+            )
         )
         if all_rules:
             for i, rule in enumerate(all_rules):
