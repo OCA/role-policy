@@ -342,7 +342,7 @@ class RolePolicyExportXls(models.AbstractModel):
         modifier_template = {
             "model": {
                 "header": {"value": "Model"},
-                "data": {"value": self._render("rule.model")},
+                "data": {"value": self._render("rule.model or ''")},
                 "width": 20,
             },
             "priority": {
