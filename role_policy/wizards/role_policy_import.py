@@ -52,6 +52,8 @@ class RolePolicyImport(models.TransientModel):
             ("act_server", "Server Actions"),
             ("act_report", "Report Actions"),
             ("modifier_rule", "View Modifier Rules"),
+            # TODO:("view_sidebar_option", "View Sidebar Options"),
+            # TODO: ("view_type_attribute", "View Type Attributes"),
             ("model_method", "Model Methods"),
             # ('record_rule', 'Record Rules'),
         ]
@@ -332,7 +334,7 @@ class RolePolicyImport(models.TransientModel):
         unlink_column = (
             len(headerline) > unlink_pos and headerline[unlink_pos] == "Delete Entry"
         )
-        to_unlink = self.env["web.modifier.rule"]
+        to_unlink = self.env["view.modifier.rule"]
         to_create = []
 
         for ri in range(1, sheet.nrows):
@@ -468,7 +470,7 @@ class RolePolicyImport(models.TransientModel):
             if to_unlink:
                 to_unlink.unlink()
             if to_create:
-                self.env["web.modifier.rule"].create(to_create)
+                self.env["view.modifier.rule"].create(to_create)
         return err_log
 
     def _read_model_method(self, sheet, role):

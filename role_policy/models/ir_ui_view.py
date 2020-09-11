@@ -31,9 +31,10 @@ class IrUiView(models.Model):
         res = super().read_combined(fields=fields)
         if not self.model:
             return res
+        res["arch"] = self._apply_view_type_attribute_rules(res["arch"])
         archs = [(res["arch"], self.id)]
-        archs = self._apply_web_modifier_remove_rules(self.model, archs)
-        archs = self._apply_web_modifier_rules(self.model, archs)
+        archs = self._apply_view_modifier_remove_rules(self.model, archs)
+        archs = self._apply_view_modifier_rules(self.model, archs)
         if archs:
             arch = self._remove_security_groups(archs[0][0])
         else:
@@ -52,15 +53,23 @@ class IrUiView(models.Model):
     @api.model
     def get_inheriting_views_arch(self, view_id, model):
         archs = super().get_inheriting_views_arch(view_id, model)
-        archs = self._apply_web_modifier_remove_rules(model, archs)
-        archs = self._apply_web_modifier_rules(model, archs)
+        archs = self._apply_view_modifier_remove_rules(model, archs)
+        archs = self._apply_view_modifier_rules(model, archs)
         return archs
 
-    def _apply_web_modifier_remove_rules(self, model, archs_in):
+    def _apply_view_type_attribute_rules(self, arch):
+        rules = self.env["view.type.attribute"]._get_rules(self.id)
+        if rules:
+            arch_node = etree.fromstring(arch)
+            [arch_node.set(r.attrib, r.attrib_val) for r in rules]
+            arch = etree.tostring(arch_node, encoding="unicode")
+        return arch
+
+    def _apply_view_modifier_remove_rules(self, model, archs_in):
         archs = archs_in[:]
         removal_indexes = []
         for i, (arch, view_id) in enumerate(archs_in):
-            rules = self.env["web.modifier.rule"]._get_rules(
+            rules = self.env["view.modifier.rule"]._get_rules(
                 model, view_id, remove=True
             )
             for rule in rules:
@@ -93,11 +102,11 @@ class IrUiView(models.Model):
             del archs[i]
         return archs
 
-    def _apply_web_modifier_rules(self, model, archs_in):
+    def _apply_view_modifier_rules(self, model, archs_in):
         archs = []
         for (arch, view_id) in archs_in:
             view = self.browse(view_id)
-            rules = self.env["web.modifier.rule"]._get_rules(
+            rules = self.env["view.modifier.rule"]._get_rules(
                 model, view_id, view_type=view.type
             )
             for rule in rules:

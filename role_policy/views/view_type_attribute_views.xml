@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="view_type_attribute_view_search" model="ir.ui.view">
+        <field name="name">view.type.attribute.search</field>
+        <field name="model">view.type.attribute</field>
+        <field name="arch" type="xml">
+            <search string="Search Rule">
+                <field name="view_id" string="Model" />
+                <separator />
+                <filter
+                    string="Inactive Rules"
+                    name="inactive"
+                    domain="[('active', '=', False)]"
+                />
+            </search>
+        </field>
+    </record>
+    <record id="view_type_attribute_view_tree" model="ir.ui.view">
+        <field name="name">view.type.attribute.tree</field>
+        <field name="model">view.type.attribute</field>
+        <field name="arch" type="xml">
+            <tree string="View Type Attributes" editable="bottom">
+                <field name="sequence" widget="handle" />
+                <field
+                    name="role_id"
+                    readonly="not context.get('base_model_name')"
+                    invisible="context.get('base_model_name')"
+                />
+                <field name="priority" string="Prio" />
+                <field name="view_id" />
+                <field name="view_xml_id" optional="hide" />
+                <field name="view_type" />
+                <field name="attrib" />
+                <field name="attrib_val" />
+                <field name="active" optional="show" />
+            </tree>
+        </field>
+    </record>
+    <record id="view_type_attribute_action" model="ir.actions.act_window">
+        <field name="name">View Type Attributes</field>
+        <field name="res_model">view.type.attribute</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+</odoo>

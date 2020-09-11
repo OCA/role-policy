@@ -13,7 +13,7 @@ class SecurityPolicyTag(models.Model):
     name = fields.Char(required=True)
     note = fields.Text(name="Description")
     modifier_ids = fields.Many2many(
-        comodel_name="web.modifier.rule",
+        comodel_name="view.modifier.rule",
         relation="policy_tag_modifier_rel",
         column1="tag_id",
         column2="modifier_id",

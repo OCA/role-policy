@@ -18,6 +18,8 @@ class RolePolicyExportXls(models.AbstractModel):
             "act_server",
             "act_report",
             "modifier_rule",
+            # TODO: "view_sidebar_option",
+            # TODO: "view_type_attribute",
             "model_method",
         ]:
             method = getattr(self, "_get_ws_params_{}".format(entry))

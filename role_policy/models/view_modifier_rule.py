@@ -10,8 +10,8 @@ from odoo.tools import safe_eval
 _logger = logging.getLogger(__name__)
 
 
-class WebModifierRule(models.Model):
-    _name = "web.modifier.rule"
+class ViewModifierRule(models.Model):
+    _name = "view.modifier.rule"
     _description = "View Modifiers Rule"
     _order = "role_id, sequence"
     _sql_constraints = [
@@ -228,7 +228,7 @@ class WebModifierRule(models.Model):
             self.model_id = False
 
     def _get_rules(self, model, view_id, view_type=False, remove=False):
-        signature_fields = self.env["web.modifier.rule"]._rule_signature_fields()
+        signature_fields = self._rule_signature_fields()
         dom = [
             ("model", "=", model),
             ("role_id", "in", self.env.user.role_ids.ids),
@@ -238,7 +238,7 @@ class WebModifierRule(models.Model):
             dom += ["|", ("view_id", "=", view_id), ("view_id", "=", False)]
         if view_type:
             dom += ["|", ("view_type", "=", view_type), ("view_type", "=", False)]
-        all_rules = self.env["web.modifier.rule"].search(dom)
+        all_rules = self.search(dom)
         all_rules = all_rules.sorted(
             key=lambda r: (
                 r.element or "",
@@ -258,7 +258,7 @@ class WebModifierRule(models.Model):
                         rules += rule
                     previous_signature = signature
         else:
-            rules = self.env["web.modifier.rule"]
+            rules = self.browse()
         return rules
 
     def _rule_signature_fields(self):

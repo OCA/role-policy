@@ -22,9 +22,19 @@ class ResRole(models.Model):
         comodel_name="res.role.acl", inverse_name="role_id", string="ACL Items"
     )
     modifier_rule_ids = fields.One2many(
-        comodel_name="web.modifier.rule",
+        comodel_name="view.modifier.rule",
         inverse_name="role_id",
-        string="Web Modifier Rules",
+        string="View Modifier Rules",
+    )
+    view_type_attribute_ids = fields.One2many(
+        comodel_name="view.type.attribute",
+        inverse_name="role_id",
+        string="View Type Attributes",
+    )
+    view_sidebar_option_ids = fields.One2many(
+        comodel_name="view.sidebar.option",
+        inverse_name="role_id",
+        string="View Sidebar Option",
     )
     menu_ids = fields.Many2many(
         comodel_name="ir.ui.menu",
