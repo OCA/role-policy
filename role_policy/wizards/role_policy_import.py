@@ -52,8 +52,8 @@ class RolePolicyImport(models.TransientModel):
             ("act_server", "Server Actions"),
             ("act_report", "Report Actions"),
             ("modifier_rule", "View Modifier Rules"),
-            # TODO:("view_sidebar_option", "View Sidebar Options"),
-            # TODO: ("view_type_attribute", "View Type Attributes"),
+            ("view_type_attribute", "View Type Attributes"),
+            ("sidebar_option", "View Sidebar Options"),
             ("model_method", "Model Methods"),
             # ('record_rule', 'Record Rules'),
         ]
@@ -160,7 +160,7 @@ class RolePolicyImport(models.TransientModel):
 
         for ri in range(1, sheet.nrows):
             ln = sheet.row_values(ri)
-            if not ln or ln[0] and ln[0][0] == "#" or not any(ln):
+            if self._empty_line(ln):
                 continue
             line_errors = []
             model_name = ln[1].strip()
@@ -170,7 +170,7 @@ class RolePolicyImport(models.TransientModel):
                 line_errors.append(_("Model '%s' does not exist.") % model_name)
                 if err_log:
                     err_log += "\n\n"
-                err_log = self._format_line_errors(ln, line_errors)
+                err_log += self._format_line_errors(ln, line_errors)
                 continue
 
             vals = {"role_id": role.id, "model_id": model_id}
@@ -227,7 +227,7 @@ class RolePolicyImport(models.TransientModel):
             if line_errors:
                 if err_log:
                     err_log += "\n\n"
-                err_log = self._format_line_errors(ln, line_errors)
+                err_log += self._format_line_errors(ln, line_errors)
 
         if not err_log:
             to_unlink.unlink()
@@ -270,7 +270,7 @@ class RolePolicyImport(models.TransientModel):
 
         for ri in range(1, sheet.nrows):
             ln = sheet.row_values(ri)
-            if not ln or ln[0] and ln[0][0] == "#" or not any(ln):
+            if self._empty_line(ln):
                 continue
             line_errors = []
             fld_id = self._read_xml_id(ln[1], line_errors)
@@ -302,7 +302,7 @@ class RolePolicyImport(models.TransientModel):
             if line_errors:
                 if err_log:
                     err_log += "\n\n"
-                err_log = self._format_line_errors(ln, line_errors)
+                err_log += self._format_line_errors(ln, line_errors)
 
         if not err_log:
             updates = [(3, x) for x in to_remove_ids] + [(4, x) for x in to_add_ids]
@@ -339,7 +339,7 @@ class RolePolicyImport(models.TransientModel):
 
         for ri in range(1, sheet.nrows):
             ln = sheet.row_values(ri)
-            if not ln or ln[0] and ln[0][0] == "#" or not any(ln):
+            if self._empty_line(ln):
                 continue
             line_errors = []
 
@@ -361,7 +361,7 @@ class RolePolicyImport(models.TransientModel):
                 line_errors.append(_("Model '%s' does not exist.") % model_name)
                 if err_log:
                     err_log += "\n\n"
-                err_log = self._format_line_errors(ln, line_errors)
+                err_log += self._format_line_errors(ln, line_errors)
                 continue
             element_ui = ln[5].strip() or False
             cell = sheet.cell(ri, 6)
@@ -464,13 +464,204 @@ class RolePolicyImport(models.TransientModel):
             if line_errors:
                 if err_log:
                     err_log += "\n\n"
-                err_log = self._format_line_errors(ln, line_errors)
+                err_log += self._format_line_errors(ln, line_errors)
 
         if not err_log:
             if to_unlink:
                 to_unlink.unlink()
             if to_create:
                 self.env["view.modifier.rule"].create(to_create)
+        return err_log
+
+    def _read_view_type_attribute(self, sheet, role):  # noqa: C901
+        header = [
+            "Prio",
+            "View",
+            "View External Identifier",
+            "View Type",
+            "Attribute",
+            "Attribute Value",
+            "Active",
+            "Sequence",
+        ]
+        headerline = sheet.row_values(0)
+        err_log = self._check_sheet_header(sheet, header, headerline)
+        if err_log:
+            return err_log
+        unlink_pos = len(header)
+        unlink_column = (
+            len(headerline) > unlink_pos and headerline[unlink_pos] == "Delete Entry"
+        )
+        to_unlink = self.env["view.type.attribute"]
+        to_update = []
+        to_create = []
+
+        for ri in range(1, sheet.nrows):
+            ln = sheet.row_values(ri)
+            if self._empty_line(ln):
+                continue
+            line_errors = []
+
+            prio = self._read_integer(
+                ln[0], "Prio", line_errors, required=True, positive=True
+            )
+            view_xml_id = ln[2].strip()
+            view_id = self._read_xml_id(view_xml_id, line_errors)
+            attrib = ln[4].strip() or False
+            attrib_val = ln[5].strip() or False
+            active = self._read_0_1(ln[6], "Active", sheet.cell(ri, 6), line_errors)
+            sequence = self._read_integer(
+                ln[7], "Sequence", line_errors, required=True, positive=True
+            )
+
+            vals = {
+                "role_id": role.id,
+                "priority": prio,
+                "view_id": view_id,
+                "attrib": attrib,
+                "attrib_val": attrib_val,
+                "active": active,
+                "sequence": sequence,
+            }
+            line_action = False
+            view_type_attribute = role.view_type_attribute_ids.filtered(
+                lambda r: r.view_id.id == view_id and r.attrib == attrib
+            )
+            if unlink_column:
+                unlink = ln[unlink_pos]
+                if unlink not in ["X", "x", ""]:
+                    line_errors.append(
+                        _(
+                            "Incorrect value '%s' for field 'Delete Entry'. "
+                            "The value should be 'X' or empty."
+                        )
+                        % unlink
+                    )
+                if unlink:
+                    if not view_type_attribute:
+                        line_errors.append(
+                            _(
+                                "Incorrect value '%s' for field 'Delete Entry'. "
+                                "You cannot remove a View Type Attribute "
+                                "which doesn't exist."
+                            )
+                            % unlink
+                        )
+                    else:
+                        to_unlink += view_type_attribute
+
+            if not view_type_attribute:
+                line_action = "create"
+            if view_type_attribute and line_action != "delete":
+                upd_vals = {}
+                for f in ["active", "sequence"]:
+                    if getattr(view_type_attribute, f) != vals[f]:
+                        upd_vals[f] = vals[f]
+                if upd_vals:
+                    to_update.append((view_type_attribute, upd_vals))
+            if line_action == "create":
+                if vals not in to_create:
+                    to_create.append(vals)
+                else:
+                    line_errors.append(_("Duplicate entry.") % ln)
+            if line_errors:
+                if err_log:
+                    err_log += "\n\n"
+                err_log += self._format_line_errors(ln, line_errors)
+
+        if not err_log:
+            if to_unlink:
+                to_unlink.unlink()
+            if to_create:
+                self.env["view.modifier.rule"].create(to_create)
+        return err_log
+
+    def _read_sidebar_option(self, sheet, role):  # noqa: C901
+        header = ["Model", "Prio", "Option", "Disable", "Active"]
+        headerline = sheet.row_values(0)
+        err_log = self._check_sheet_header(sheet, header, headerline)
+        if err_log:
+            return err_log
+        unlink_pos = len(header)
+        unlink_column = (
+            len(headerline) > unlink_pos and headerline[unlink_pos] == "Delete Entry"
+        )
+
+        to_unlink = self.env["view.sidebar.option"]
+        to_update = []
+        to_create = []
+
+        for ri in range(1, sheet.nrows):
+            ln = sheet.row_values(ri)
+            if self._empty_line(ln):
+                continue
+            line_errors = []
+            model = ln[0].strip().lower()
+            prio = self._read_integer(
+                ln[1], "Prio", line_errors, required=True, positive=True
+            )
+            option = ln[2].strip().lower()
+            disable = self._read_0_1(ln[3], "Disable", sheet.cell(ri, 3), line_errors)
+            active = self._read_0_1(ln[4], "Active", sheet.cell(ri, 4), line_errors)
+            vals = {
+                "role_id": role.id,
+                "model": model,
+                "priority": prio,
+                "option": option,
+                "disable": disable,
+                "active": active,
+            }
+            line_action = False
+            sidebar_option = role.view_sidebar_option_ids.filtered(
+                lambda r: r.model == model and r.option == option
+            )
+            if unlink_column:
+                unlink = ln[unlink_pos]
+                if unlink not in ["X", "x", ""]:
+                    line_errors.append(
+                        _(
+                            "Incorrect value '%s' for field 'Delete Entry'. "
+                            "The value should be 'X' or empty."
+                        )
+                        % unlink
+                    )
+                if unlink:
+                    if not sidebar_option:
+                        line_errors.append(
+                            _(
+                                "Incorrect value '%s' for field 'Delete Entry'. "
+                                "You cannot remove a View Sidebar Option "
+                                "which doesn't exist."
+                            )
+                            % unlink
+                        )
+                    else:
+                        line_action = "delete"
+                        to_unlink += sidebar_option
+            if not sidebar_option:
+                line_action = "create"
+            if sidebar_option and line_action != "delete":
+                upd_vals = {}
+                for f in ["disable", "active"]:
+                    if getattr(sidebar_option, f) != vals[f]:
+                        upd_vals[f] = vals[f]
+                if upd_vals:
+                    to_update.append((sidebar_option, upd_vals))
+            if line_action == "create":
+                if vals not in to_create:
+                    to_create.append(vals)
+                else:
+                    line_errors.append(_("Duplicate entry.") % ln)
+            if line_errors:
+                if err_log:
+                    err_log += "\n\n"
+                err_log += self._format_line_errors(ln, line_errors)
+
+        if not err_log:
+            to_unlink.unlink()
+            self.env["view.sidebar.option"].create(to_create)
+            for update in to_update:
+                update[0].update(update[1])
         return err_log
 
     def _read_model_method(self, sheet, role):
@@ -490,7 +681,7 @@ class RolePolicyImport(models.TransientModel):
 
         for ri in range(1, sheet.nrows):
             ln = sheet.row_values(ri)
-            if not ln or ln[0] and ln[0][0] == "#" or not any(ln):
+            if self._empty_line(ln):
                 continue
             line_errors = []
             name = ln[0].lower().replace(" ", "")
@@ -536,7 +727,7 @@ class RolePolicyImport(models.TransientModel):
             if line_errors:
                 if err_log:
                     err_log += "\n\n"
-                err_log = self._format_line_errors(ln, line_errors)
+                err_log += self._format_line_errors(ln, line_errors)
 
         if not err_log:
             to_unlink.unlink()
@@ -555,6 +746,13 @@ class RolePolicyImport(models.TransientModel):
                 "following field names: %s"
             ) % (sheet.name, header)
         return err_log
+
+    def _empty_line(self, ln):
+        return (
+            not ln
+            or (ln[0] and isinstance(ln[0], str) and ln[0][0] == "#")
+            or not any(ln)
+        )
 
     def _read_integer(self, val, col, line_errors, required=True, positive=True):
         int_err = _(
@@ -585,7 +783,7 @@ class RolePolicyImport(models.TransientModel):
         if res not in ["0", "1"]:
             line_errors.append(
                 _(
-                    "Incorrect value '%s'for field '%s'. "
+                    "Incorrect value '%s' for field '%s'. "
                     "The value should be '0' or '1'."
                 )
                 % (val, col)
