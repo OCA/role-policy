@@ -17,7 +17,7 @@ class ViewModifierRule(models.Model):
     _sql_constraints = [
         (
             "element_uniq",
-            "unique(role_id, element, model_id, view_id, view_type, company_id)",
+            "unique(role_id, element_ui, model_id, view_id, view_type, company_id)",
             "The Element must be unique",
         )
     ]

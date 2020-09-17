@@ -247,10 +247,13 @@ Cf. role_policy_sale as an example.
 Roadmap
 -------
 
+- rename "View Sidebar Options" to "Model Sidebar Options" and extend the functionality
+  to all views on the defined model for the following options: export, import, create, edit, delete, duplicate
 - Rules syntax checker button
 - Allow a user with multiple roles to select wich roles are active
 - Clean-up/adapt standard user & groups screens for Roles
-- Generate cleer "role" error message when hitting e.g. ACL error
+- Generate clear "role" error message when hitting e.g. ACL error
 - Role Policy traceability
 - Unit tests
 - Record rules
+

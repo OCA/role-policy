@@ -369,7 +369,7 @@ class RolePolicyExportXls(models.AbstractModel):
             },
             "remove": {
                 "header": {"value": "Remove"},
-                "data": {"value": self._render("rule.remove and 1 or ''")},
+                "data": {"value": self._render("rule.remove and 1 or 0")},
                 "width": 6,
             },
             "invisible": {
