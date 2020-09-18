@@ -26,15 +26,15 @@ class ResRole(models.Model):
         inverse_name="role_id",
         string="View Modifier Rules",
     )
+    model_operation_ids = fields.One2many(
+        comodel_name="view.model.operation",
+        inverse_name="role_id",
+        string="View Model Operation",
+    )
     view_type_attribute_ids = fields.One2many(
         comodel_name="view.type.attribute",
         inverse_name="role_id",
         string="View Type Attributes",
-    )
-    view_sidebar_option_ids = fields.One2many(
-        comodel_name="view.sidebar.option",
-        inverse_name="role_id",
-        string="View Sidebar Option",
     )
     menu_ids = fields.Many2many(
         comodel_name="ir.ui.menu",

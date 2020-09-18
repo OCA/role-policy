@@ -10,6 +10,6 @@ from . import res_role
 from . import res_role_acl
 from . import res_users
 from . import security_policy_tag
+from . import view_model_operation
 from . import view_modifier_rule
-from . import view_sidebar_option
 from . import view_type_attribute

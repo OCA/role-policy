@@ -3,7 +3,7 @@
 
 {
     "name": "Role Policy",
-    "version": "13.0.0.2.1",
+    "version": "13.0.0.2.2",
     "license": "AGPL-3",
     "author": "Noviat",
     "website": "http://www.noviat.com",
@@ -23,8 +23,8 @@
         "views/res_role_acl_views.xml",
         "views/res_users_views.xml",
         "views/security_policy_tag_views.xml",
+        "views/view_model_operation_views.xml",
         "views/view_modifier_rule_views.xml",
-        "views/view_sidebar_option_views.xml",
         "views/view_type_attribute_views.xml",
         "wizards/role_policy_import_views.xml",
         "views/menu.xml",

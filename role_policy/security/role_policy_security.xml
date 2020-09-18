@@ -25,9 +25,9 @@
                 name="domain_force"
             >['|', ('company_id', '=', False), ('company_id', '=', company_id)]</field>
         </record>
-        <record id="view_sidebar_option_comp_rule" model="ir.rule">
-            <field name="name">View Sidebar Attribute</field>
-            <field name="model_id" ref="model_view_sidebar_option" />
+        <record id="view_model_operation_comp_rule" model="ir.rule">
+            <field name="name">View Model Operation</field>
+            <field name="model_id" ref="model_view_model_operation" />
             <field name="global" eval="True" />
             <field
                 name="domain_force"

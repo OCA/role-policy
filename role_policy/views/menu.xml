@@ -35,10 +35,10 @@
         sequence="4"
     />
     <menuitem
-        id="view_sidebar_option_menu"
-        name="View Sidebar Options"
+        id="view_model_operation_menu"
+        name="View Model Operations"
         parent="res_role_menu_main"
-        action="view_sidebar_option_action"
+        action="view_model_operation_action"
         sequence="5"
     />
 </odoo>

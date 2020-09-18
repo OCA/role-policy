@@ -106,15 +106,30 @@ check the syntax with autocorrection where feasible.
 View Type Attribute rules
 -------------------------
 
-With this feature the view type attributes such as create, edit, delete, duplicate, export_xlsx become role based.
+With this feature the view type attributes such as create, edit, delete, duplicate, import, export_xlsx become role based.
 Any such attribute can be replaced with these rules (e.g. role based decoration-%).
 
 |
 
-View Sidebar Option rules
--------------------------
+View Model Operation rules
+--------------------------
 
-With this feature the "Export" and "Archive" sidebar options become role based.
+With this feature a number of operations for the selected models become role based.
+Defining these operations will have an effect on all views defined on the model.
+
+You can also set defaults for all models by specifying 'default' as the model name.
+
+Supported Operations:
+
+- export
+- archive
+
+Planned:
+- import
+- create
+- edit
+- delete
+- duplicate
 
 |
 
@@ -247,8 +262,6 @@ Cf. role_policy_sale as an example.
 Roadmap
 -------
 
-- rename "View Sidebar Options" to "Model Sidebar Options" and extend the functionality
-  to all views on the defined model for the following options: export, import, create, edit, delete, duplicate
 - Rules syntax checker button
 - Allow a user with multiple roles to select wich roles are active
 - Clean-up/adapt standard user & groups screens for Roles

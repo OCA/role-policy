@@ -19,7 +19,7 @@ class RolePolicyExportXls(models.AbstractModel):
             "act_report",
             "modifier_rule",
             "view_type_attribute",
-            "sidebar_option",
+            "model_operation",
             "model_method",
         ]:
             method = getattr(self, "_get_ws_params_{}".format(entry))
@@ -522,9 +522,9 @@ class RolePolicyExportXls(models.AbstractModel):
                 default_format=self.format_tcell_left,
             )
 
-    def _get_ws_params_sidebar_option(self, data, role):
+    def _get_ws_params_model_operation(self, data, role):
 
-        sidebar_option_template = {
+        model_operation_template = {
             "model": {
                 "header": {"value": "Model"},
                 "data": {"value": self._render("rule.model or ''")},
@@ -535,9 +535,9 @@ class RolePolicyExportXls(models.AbstractModel):
                 "data": {"value": self._render("rule.priority")},
                 "width": 4,
             },
-            "option": {
-                "header": {"value": "Option"},
-                "data": {"value": self._render("rule.option or ''")},
+            "operation": {
+                "header": {"value": "Operation"},
+                "data": {"value": self._render("rule.operation or ''")},
                 "width": 20,
             },
             "disable": {
@@ -553,16 +553,16 @@ class RolePolicyExportXls(models.AbstractModel):
         }
 
         params = {
-            "ws_name": "View Sidebar Options",
-            "generate_ws_method": "_export_sidebar_option",
-            "title": "View Sidebar Options",
-            "wanted_list": [k for k in sidebar_option_template],
-            "col_specs": sidebar_option_template,
+            "ws_name": "View Model Operations",
+            "generate_ws_method": "_export_model_operation",
+            "title": "View Model Operations",
+            "wanted_list": [k for k in model_operation_template],
+            "col_specs": model_operation_template,
         }
 
         return params
 
-    def _export_sidebar_option(self, workbook, ws, ws_params, data, role):
+    def _export_model_operation(self, workbook, ws, ws_params, data, role):
 
         ws.set_portrait()
         ws.fit_to_pages(1, 0)
@@ -581,7 +581,7 @@ class RolePolicyExportXls(models.AbstractModel):
         )
         ws.freeze_panes(row_pos, 0)
 
-        for rule in role.view_sidebar_option_ids:
+        for rule in role.model_operation_ids:
             row_pos = self._write_line(
                 ws,
                 row_pos,

@@ -9,15 +9,15 @@ from odoo.exceptions import UserError
 _logger = logging.getLogger(__name__)
 
 
-class ViewSidebarOption(models.Model):
-    _name = "view.sidebar.option"
-    _description = "View Sidebar Option"
-    _order = "role_id, sort, option"
+class ViewModelOperation(models.Model):
+    _name = "view.model.operation"
+    _description = "View Model Operation"
+    _order = "role_id, sort, operation"
     _sql_constraints = [
         (
-            "option_uniq",
-            "unique(role_id, model, option, company_id)",
-            "The Sidebar Option must be unique",
+            "operation_uniq",
+            "unique(role_id, model, operation, company_id)",
+            "The operation must be unique",
         )
     ]
 
@@ -34,17 +34,15 @@ class ViewSidebarOption(models.Model):
         "Rule conflicts may exist for users with "
         "multiple roles or inconsistent role definitions.",
     )
-    option = fields.Selection(
-        selection="_selection_option", string="Option", required=True
-    )
-    disable = fields.Boolean(help="Remove this option from the Sidebar", default=True)
+    operation = fields.Selection(selection="_selection_operation", required=True)
+    disable = fields.Boolean(help="Disable this operation", default=True)
     active = fields.Boolean(default=True)
     company_id = fields.Many2one(
         comodel_name="res.company", related="role_id.company_id", store=True
     )
 
     @api.model
-    def _selection_option(self):
+    def _selection_operation(self):
         return [("export", _("Export")), ("archive", _("Archive"))]
 
     @api.depends("model")
@@ -69,7 +67,7 @@ class ViewSidebarOption(models.Model):
         signature_fields = self._rule_signature_fields()
         dom = [("role_id", "in", self.env.user.role_ids.ids)]
         all_rules = self.search(dom)
-        all_rules = all_rules.sorted(key=lambda r: (r.model, r.option, r.priority))
+        all_rules = all_rules.sorted(key=lambda r: (r.model, r.operation, r.priority))
         if all_rules:
             for i, rule in enumerate(all_rules):
                 if i == 0:
@@ -85,4 +83,4 @@ class ViewSidebarOption(models.Model):
         return rules
 
     def _rule_signature_fields(self):
-        return ["model", "option"]
+        return ["model", "operation"]

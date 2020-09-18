@@ -53,7 +53,7 @@ class RolePolicyImport(models.TransientModel):
             ("act_report", "Report Actions"),
             ("modifier_rule", "View Modifier Rules"),
             ("view_type_attribute", "View Type Attributes"),
-            ("view_sidebar_option", "View Sidebar Options"),
+            ("model_operation", "View Model Operations"),
             ("model_method", "Model Methods"),
             # ('record_rule', 'Record Rules'),
         ]
@@ -357,7 +357,7 @@ class RolePolicyImport(models.TransientModel):
         """ placeholder for exra checks """
         pass
 
-    def _read_view_sidebar_option(self, sheet, role):
+    def _read_model_operation(self, sheet, role):
         fields_dict = {
             "Model": {
                 "field": "model",
@@ -366,8 +366,8 @@ class RolePolicyImport(models.TransientModel):
                 "required": True,
             },
             "Prio": {"field": "priority", "method": "_read_cell_int", "required": True},
-            "Option": {
-                "field": "option",
+            "Operation": {
+                "field": "operation",
                 "match": True,
                 "method": "_read_cell_char",
                 "required": True,
@@ -375,11 +375,9 @@ class RolePolicyImport(models.TransientModel):
             "Disable": {"field": "disable", "method": "_read_cell_bool"},
             "Active": {"field": "active", "method": "_read_cell_bool"},
         }
-        return self._read_rule_sheet(
-            sheet, role, "view_sidebar_option_ids", fields_dict
-        )
+        return self._read_rule_sheet(sheet, role, "model_operation_ids", fields_dict)
 
-    def _check_view_sidebar_option_vals(self, vals, line_errors):
+    def _check_model_operation_vals(self, vals, line_errors):
         """ placeholder for exra checks """
         pass
 
@@ -393,9 +391,7 @@ class RolePolicyImport(models.TransientModel):
             },
             "Active": {"field": "active", "method": "_read_cell_bool"},
         }
-        return self._read_rule_sheet(
-            sheet, role, "model_method_ids", fields_dict
-        )
+        return self._read_rule_sheet(sheet, role, "model_method_ids", fields_dict)
 
     def _check_model_method_vals(self, vals, line_errors):
         """ placeholder for exra checks """
@@ -418,6 +414,7 @@ class RolePolicyImport(models.TransientModel):
         unique_entries = []
         to_unlink = self.env[rule_model]
         to_create = []
+        to_update = []
 
         for ri in range(1, sheet.nrows):
             ln = sheet.row_values(ri)
@@ -451,12 +448,6 @@ class RolePolicyImport(models.TransientModel):
                 )
                 continue
 
-            if line_errors:
-                err_log = (err_log and err_log + "\n\n") + self._format_line_errors(
-                    ln, line_errors
-                )
-                continue
-
             def rule_filter(rule):
                 rule_key_fields = []
                 for f in match_fields:
@@ -471,15 +462,17 @@ class RolePolicyImport(models.TransientModel):
 
             if unlink_column and self._check_unlink(rule, ln[unlink_pos], line_errors):
                 to_unlink += rule
-            elif rule and not err_log:
+            elif rule:
                 upd_vals = {k: v for k, v in vals.items() if k not in match_fields}
-                rule.update(upd_vals)
+                to_update.append((rule, upd_vals))
             else:
                 to_create.append(vals)
 
         if not err_log:
             to_unlink.unlink()
             self.env[rule_model].create(to_create)
+            for rule, vals in to_update:
+                rule.update(vals)
 
         return err_log
 

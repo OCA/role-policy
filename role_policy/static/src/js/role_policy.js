@@ -18,12 +18,12 @@ odoo.define("role_policy.role_policy", function(require) {
             if (session.is_admin) {
                 return sidebarProm;
             }
-            var exportOptions = session.sidebar_options.export_options;
+            var exportOperations = session.sidebar_operations.export_operations;
             var removeExport = false;
-            if (this.modelName in exportOptions) {
-                removeExport = exportOptions[this.modelName];
-            } else if ("default" in exportOptions) {
-                removeExport = exportOptions.default;
+            if (this.modelName in exportOperations) {
+                removeExport = exportOperations[this.modelName];
+            } else if ("default" in exportOperations) {
+                removeExport = exportOperations.default;
             }
             if (removeExport) {
                 var exportLabel = _t("Export");
@@ -47,12 +47,12 @@ odoo.define("role_policy.role_policy", function(require) {
         init: function(parent, model, renderer, params) {
             this._super.apply(this, arguments);
             if (!session.is_admin) {
-                var archiveOptions = session.sidebar_options.archive_options;
+                var archiveOperations = session.sidebar_operations.archive_operations;
                 var removeArchive = false;
-                if (this.modelName in archiveOptions) {
-                    removeArchive = archiveOptions[this.modelName];
-                } else if ("default" in archiveOptions) {
-                    removeArchive = archiveOptions.default;
+                if (this.modelName in archiveOperations) {
+                    removeArchive = archiveOperations[this.modelName];
+                } else if ("default" in archiveOperations) {
+                    removeArchive = archiveOperations.default;
                 }
                 if (params.archiveEnabled && removeArchive) {
                     params.archiveEnabled = false;

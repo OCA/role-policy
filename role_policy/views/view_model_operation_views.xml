@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <odoo>
-    <record id="view_sidebar_option_view_search" model="ir.ui.view">
-        <field name="name">view.sidebar.option.search</field>
-        <field name="model">view.sidebar.option</field>
+    <record id="view_model_operation_view_search" model="ir.ui.view">
+        <field name="name">view.model.operation.search</field>
+        <field name="model">view.model.operation</field>
         <field name="arch" type="xml">
             <search string="Search Rule">
                 <field name="model" string="Model" />
@@ -15,11 +15,11 @@
             </search>
         </field>
     </record>
-    <record id="view_sidebar_option_view_tree" model="ir.ui.view">
-        <field name="name">view.sidebar.option.tree</field>
-        <field name="model">view.sidebar.option</field>
+    <record id="view_model_operation_view_tree" model="ir.ui.view">
+        <field name="name">view.model.operation.tree</field>
+        <field name="model">view.model.operation</field>
         <field name="arch" type="xml">
-            <tree string="View Sidbar Options" editable="bottom">
+            <tree string="View Model Operations" editable="bottom">
                 <field name="sort" invisible="1" />
                 <field
                     name="role_id"
@@ -31,15 +31,15 @@
                     placeholder="specify 'default' or model name such as 'sale.order' "
                 />
                 <field name="priority" string="Prio" />
-                <field name="option" />
+                <field name="operation" />
                 <field name="disable" />
                 <field name="active" optional="show" />
             </tree>
         </field>
     </record>
-    <record id="view_sidebar_option_action" model="ir.actions.act_window">
-        <field name="name">View Type Attributes</field>
-        <field name="res_model">view.sidebar.option</field>
+    <record id="view_model_operation_action" model="ir.actions.act_window">
+        <field name="name">View Model Operations</field>
+        <field name="res_model">view.model.operation</field>
         <field name="view_mode">tree,form</field>
     </record>
 </odoo>
