@@ -3,7 +3,7 @@
   <data noupdate="1">
 
     <!-- role dm -->
-    <record id="rule_dm_partner_vat" model="web.modifier.rule">
+    <record id="rule_dm_partner_vat" model="view.modifier.rule">
       <field name="role_id" ref="role_dm"/>
       <field name="priority">1</field>
       <field name="model_id" ref="base.model_res_partner"/>
@@ -13,7 +13,7 @@
       <field name="sequence">10</field>
     </record>
 
-    <record id="rule_dm_partner_country" model="web.modifier.rule">
+    <record id="rule_dm_partner_country" model="view.modifier.rule">
       <field name="role_id" ref="role_dm"/>
       <field name="priority">1</field>
       <field name="model_id" ref="base.model_res_partner"/>
@@ -24,7 +24,7 @@
     </record>
 
     <!-- role cso -->
-    <record id="rule_cso_partner_vat" model="web.modifier.rule">
+    <record id="rule_cso_partner_vat" model="view.modifier.rule">
       <field name="role_id" ref="role_cso"/>
       <field name="priority">16</field>
       <field name="model_id" ref="base.model_res_partner"/>
