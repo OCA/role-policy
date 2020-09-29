@@ -309,7 +309,7 @@ class RolePolicyImport(models.TransientModel):
             "Required": {"field": "modifier_required", "method": "_read_cell_modifier"},
             "Active": {"field": "active", "method": "_read_cell_bool"},
             "Sequence": {
-                "field": "active",
+                "field": "sequence",
                 "method": "_read_cell_int",
                 "required": True,
             },
@@ -344,7 +344,7 @@ class RolePolicyImport(models.TransientModel):
             },
             "Active": {"field": "active", "method": "_read_cell_bool"},
             "Sequence": {
-                "field": "active",
+                "field": "sequence",
                 "method": "_read_cell_int",
                 "required": True,
             },
