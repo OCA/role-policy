@@ -110,14 +110,10 @@ class ViewModelOperation(models.Model):
             if model:
                 default_rules = rules.filtered(lambda r: r.model == "default")
                 model_rules = rules - default_rules
-                model_rules_signatures = [
-                    [getattr(model_rule, f) for f in signature_fields]
-                    for model_rule in model_rules
-                ]
-                for rule in default_rules:
-                    signature = [getattr(rule, f) for f in signature_fields]
-                    if signature in model_rules_signatures:
-                        rules -= rule
+                model_rules_operations = [r.operation for r in model_rules]
+                rules -= default_rules.filtered(
+                    lambda r: r.operation in model_rules_operations
+                )
         else:
             rules = self.browse()
         return rules
