@@ -59,10 +59,21 @@ class IrUiView(models.Model):
 
     def _apply_view_type_attribute_rules(self, arch):
         rules = self.env["view.type.attribute"]._get_rules(self.id)
+        arch_node = etree.fromstring(arch)
         if rules:
-            arch_node = etree.fromstring(arch)
             [arch_node.set(r.attrib, r.attrib_val) for r in rules]
-            arch = etree.tostring(arch_node, encoding="unicode")
+
+        elif not self.env.is_admin():
+            rules = self.env["view.model.operation"]._get_rules(model=self.model)
+            operations = self.env["view.model.operation"]._operations_dict()
+            for rule in rules:
+                for k, v in operations.items():
+                    if self.type in v.get("view_types", []) and k == rule.operation:
+                        arch_node.set(
+                            v.get("view_type_attribute") or k,
+                            rule.disable and "false" or "true",
+                        )
+        arch = etree.tostring(arch_node, encoding="unicode")
         return arch
 
     def _apply_view_modifier_remove_rules(self, model, archs_in):

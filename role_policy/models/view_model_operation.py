@@ -43,7 +43,8 @@ class ViewModelOperation(models.Model):
 
     @api.model
     def _selection_operation(self):
-        return [("export", _("Export")), ("archive", _("Archive"))]
+        ops_dict = self._operations_dict()
+        return [(k, v["label"]) for k, v in ops_dict.items()]
 
     @api.depends("model")
     def _compute_sort(self):
@@ -63,9 +64,37 @@ class ViewModelOperation(models.Model):
                         % (rule.id, rule.model)
                     )
 
-    def _get_rules(self):
+    def _operations_dict(self):
+        """
+        Returns dict defining the supported operations.
+        Specify "view_types" and "view_type_attribute" to implement this
+        operation via the view.type.attribute rule set.
+        The "view_type_attribute" key is optional, if not set the
+        attribute name is equal to the operation name).
+
+        The "archive" operation is implemented via js code.
+        The "export" operation is implemented via combination of js code
+        and view type attribute.
+        """
+        return {
+            "create": {"label": _("Create"), "view_types": ("tree", "form")},
+            "edit": {"label": _("Edit"), "view_types": ("tree", "form")},
+            "delete": {"label": _("Delete"), "view_types": ("tree", "form")},
+            "duplicate": {"label": _("Duplicate"), "view_types": ("tree", "form")},
+            "export": {
+                "label": _("Export"),
+                "view_types": ("tree", "form"),
+                "view_type_attribute": "export_xlsx",
+            },
+            "import": {"label": _("Import"), "view_types": ("tree", "form")},
+            "archive": {"label": _("Archive")},
+        }
+
+    def _get_rules(self, model=None):
         signature_fields = self._rule_signature_fields()
         dom = [("role_id", "in", self.env.user.role_ids.ids)]
+        if model:
+            dom.append(("model", "in", (model, "default")))
         all_rules = self.search(dom)
         all_rules = all_rules.sorted(key=lambda r: (r.model, r.operation, r.priority))
         if all_rules:
@@ -78,6 +107,17 @@ class ViewModelOperation(models.Model):
                     if signature != previous_signature:
                         rules += rule
                     previous_signature = signature
+            if model:
+                default_rules = rules.filtered(lambda r: r.model == "default")
+                model_rules = rules - default_rules
+                model_rules_signatures = [
+                    [getattr(model_rule, f) for f in signature_fields]
+                    for model_rule in model_rules
+                ]
+                for rule in default_rules:
+                    signature = [getattr(rule, f) for f in signature_fields]
+                    if signature in model_rules_signatures:
+                        rules -= rule
         else:
             rules = self.browse()
         return rules

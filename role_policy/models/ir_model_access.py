@@ -24,14 +24,14 @@ class IrModelAccess(models.Model):
 
         :return: the ids of the groups granting the requested accesses.
         """
-        # pylint: disable=E8103
-        query = (
-            """SELECT rg.id
-               FROM ir_model_access ima
-               INNER JOIN ir_model im ON ima.model_id = im.id
-               INNER JOIN res_groups rg ON ima.group_id = rg.id
-               WHERE im.model = '%s' AND ima.active = TRUE
+        query = (  # pylint: disable=E8103
             """
+        SELECT rg.id
+          FROM ir_model_access ima
+          INNER JOIN ir_model im ON ima.model_id = im.id
+          INNER JOIN res_groups rg ON ima.group_id = rg.id
+          WHERE im.model = '%s' AND ima.active = TRUE
+        """
             % model
         )
         for access in crud:

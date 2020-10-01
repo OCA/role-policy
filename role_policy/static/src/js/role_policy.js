@@ -34,9 +34,7 @@ odoo.define("role_policy.role_policy", function(require) {
                         otherNew.push(other[i]);
                     }
                 }
-                if (otherNew.length > 0) {
-                    this.sidebar.items.other = otherNew;
-                }
+                this.sidebar.items.other = otherNew;
             }
 
             return sidebarProm;
