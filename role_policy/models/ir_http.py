@@ -11,21 +11,19 @@ class IrHttp(models.AbstractModel):
     def session_info(self):
         res = super().session_info()
         user = request.env.user
-        rules = self.env["view.model.operation"]._get_rules()
-        export_operations = {}
-        archive_operations = {}
+        operations = ["archive", "create", "export", "import"]
+        rules = (
+            self.env["view.model.operation"]
+            ._get_rules()
+            .filtered(lambda r: r.operation in operations)
+        )
+        model_operations = {k: {} for k in operations}
         for rule in rules:
-            if rule.operation == "export":
-                export_operations[rule.model] = rule.disable
-            else:
-                archive_operations[rule.model] = rule.disable
+            model_operations[rule.operation][rule.model] = rule.disable
         res.update(
             {
                 "roles": [(r.id, r.code) for r in user.role_ids],
-                "sidebar_operations": {
-                    "export_operations": export_operations,
-                    "archive_operations": archive_operations,
-                },
+                "model_operations": model_operations,
             }
         )
         return res

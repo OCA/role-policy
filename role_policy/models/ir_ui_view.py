@@ -58,14 +58,17 @@ class IrUiView(models.Model):
         return archs
 
     def _apply_view_type_attribute_rules(self, arch):
-        rules = self.env["view.type.attribute"]._get_rules(self.id)
+        vta_rules = self.env["view.type.attribute"]._get_rules(self.id)
         arch_node = etree.fromstring(arch)
-        if rules:
-            [arch_node.set(r.attrib, r.attrib_val) for r in rules]
+        if vta_rules:
+            [arch_node.set(r.attrib, r.attrib_val) for r in vta_rules]
 
-        elif not self.env.is_admin():
-            rules = self.env["view.model.operation"]._get_rules(model=self.model)
+        if not self.env.is_admin():
             operations = self.env["view.model.operation"]._operations_dict()
+            vmo_rules = self.env["view.model.operation"]._get_rules(model=self.model)
+            rules = vmo_rules.filtered(
+                lambda r: r.operation not in vta_rules.mapped("attrib")
+            )
             for rule in rules:
                 for k, v in operations.items():
                     if self.type in v.get("view_types", []) and k == rule.operation:

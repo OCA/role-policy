@@ -260,7 +260,6 @@ Cf. role_policy_sale as an example.
 Roadmap
 -------
 
-- View Model Operation rules: allow to disable create & import on kanban views (currently only tree & form)
 - Rules syntax checker button
 - Allow a user with multiple roles to select wich roles are active
 - Clean-up/adapt standard user & groups screens for Roles
