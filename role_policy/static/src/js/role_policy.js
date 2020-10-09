@@ -30,7 +30,12 @@ odoo.define("role_policy.role_policy", function(require) {
                         hideButton = Operations.default;
                     }
                     if (hideButton) {
-                        this.$buttons.find(buttons[button]).hide();
+                        var toHide = this.$buttons
+                            ? this.$buttons.find(buttons[button])
+                            : false;
+                        if (toHide) {
+                            toHide.hide();
+                        }
                     }
                 }
             }
