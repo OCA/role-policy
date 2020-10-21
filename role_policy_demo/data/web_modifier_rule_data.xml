@@ -8,7 +8,7 @@
       <field name="priority">1</field>
       <field name="model_id" ref="base.model_res_partner"/>
       <field name="view_type">form</field>
-      <field name="element">field name="vat"</field>
+      <field name="element_ui">field name="vat"</field>
       <field name="modifier_required">[("is_company", "=", True)]</field>
       <field name="sequence">10</field>
     </record>
@@ -18,7 +18,7 @@
       <field name="priority">1</field>
       <field name="model_id" ref="base.model_res_partner"/>
       <field name="view_type">form</field>
-      <field name="element">xpath expr="//field[@name='country_id']"</field>
+      <field name="element_ui">xpath expr="//field[@name='country_id']"</field>
       <field name="modifier_required">1</field>
       <field name="sequence">10</field>
     </record>
@@ -29,7 +29,7 @@
       <field name="priority">16</field>
       <field name="model_id" ref="base.model_res_partner"/>
       <field name="view_type">form</field>
-      <field name="element">field name="vat"</field>
+      <field name="element_ui">field name="vat"</field>
       <field name="modifier_required">0</field>
       <field name="sequence">20</field>
     </record>
