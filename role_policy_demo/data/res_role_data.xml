@@ -4,7 +4,7 @@
 
     <record id="role_dm" model="res.role">
       <field name="name">Data Maintenance</field>
-      <field name="code">DM</field>
+      <field name="code">DME</field>
       <field name="sequence">1</field>
       <field name="acl_ids"
              eval="[
