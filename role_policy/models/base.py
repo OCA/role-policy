@@ -17,7 +17,11 @@ class BaseModel(models.AbstractModel):
         Disable no-role groups except for user_admin & user_root.
         """
         user = self.env.user
-        if user in [self.env.ref("base.user_admin"), self.env.ref("base.user_root")]:
+        if user in [
+            self.env.ref("base.user_admin"),
+            self.env.ref("base.user_root"),
+            self.env.ref("base.public_user"),
+        ]:
             return super().user_has_groups(groups)
 
         role_groups = []
