@@ -1,13 +1,13 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-  <data noupdate="1">
-
-    <record id="role_dm" model="res.role">
-      <field name="name">Data Maintenance</field>
-      <field name="code">DME</field>
-      <field name="sequence">1</field>
-      <field name="acl_ids"
-             eval="[
+    <data noupdate="1">
+        <record id="role_dm" model="res.role">
+            <field name="name">Data Maintenance</field>
+            <field name="code">DME</field>
+            <field name="sequence">1</field>
+            <field
+                name="acl_ids"
+                eval="[
                (0, 0, {
                  'model_id': ref('base.model_res_partner'),
                  'perm_read': True,
@@ -22,23 +22,26 @@
                  'perm_create': True,
                  'perm_unlink': True,
                  }),
-             ]"/>
-      <field name="menu_ids"
-             eval="[(6, 0, [
+             ]"
+            />
+            <field
+                name="menu_ids"
+                eval="[(6, 0, [
                ref('contacts.menu_contacts'),
                ref('contacts.res_partner_menu_contacts'),
                ref('contacts.res_partner_menu_config'),
                ref('contacts.menu_partner_category_form'),
-               ])]"/>
-      <field name="act_window_ids"
-             eval="[(6, 0, [ref('base.action_partner_merge')])]"/>
-    </record>
-
-    <record id="role_cso" model="res.role">
-      <field name="name">Chief Security Officer</field>
-      <field name="code">CSO</field>
-      <field name="sequence">2</field>
-    </record>
-
-  </data>
+               ])]"
+            />
+            <field
+                name="act_window_ids"
+                eval="[(6, 0, [ref('base.action_partner_merge')])]"
+            />
+        </record>
+        <record id="role_cso" model="res.role">
+            <field name="name">Chief Security Officer</field>
+            <field name="code">CSO</field>
+            <field name="sequence">2</field>
+        </record>
+    </data>
 </odoo>

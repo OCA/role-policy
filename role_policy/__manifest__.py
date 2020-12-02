@@ -5,7 +5,7 @@
     "name": "Role Policy",
     "version": "13.0.0.3.0",
     "license": "AGPL-3",
-    "author": "Noviat",
+    "author": "Noviat, Odoo Community Association (OCA)",
     "website": "http://www.noviat.com",
     "category": "Tools",
     "depends": ["mail", "report_xlsx_helper"],

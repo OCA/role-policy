@@ -24,7 +24,8 @@ class IrModelAccess(models.Model):
 
         :return: the ids of the groups granting the requested accesses.
         """
-        query = (  # pylint: disable=E8103
+        # pylint: disable=E8103
+        query = (
             """
         SELECT rg.id
           FROM ir_model_access ima
