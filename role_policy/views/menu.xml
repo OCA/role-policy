@@ -1,0 +1,44 @@
+<?xml version="1.0" ?>
+<odoo>
+    <menuitem
+        id="res_role_menu_main"
+        name="Roles"
+        parent="base.menu_administration"
+        sequence="1"
+    />
+    <menuitem
+        id="res_role_menu"
+        name="Roles"
+        parent="res_role_menu_main"
+        action="res_role_action"
+        sequence="1"
+    />
+    <menuitem
+        id="res_role_acl_menu"
+        name="Role ACLs"
+        parent="res_role_menu_main"
+        action="res_role_acl_action"
+        sequence="2"
+    />
+    <menuitem
+        id="view_modifier_rule_menu"
+        name="View Modifier Rules"
+        parent="res_role_menu_main"
+        action="view_modifier_rule_action"
+        sequence="3"
+    />
+    <menuitem
+        id="view_type_attribute_menu"
+        name="View Type Attributes"
+        parent="res_role_menu_main"
+        action="view_type_attribute_action"
+        sequence="4"
+    />
+    <menuitem
+        id="view_model_operation_menu"
+        name="View Model Operations"
+        parent="res_role_menu_main"
+        action="view_model_operation_action"
+        sequence="5"
+    />
+</odoo>

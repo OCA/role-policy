@@ -1,0 +1,170 @@
+<?xml version="1.0" ?>
+<odoo>
+    <record id="res_role_view_search" model="ir.ui.view">
+        <field name="name">res.role.search</field>
+        <field name="model">res.role</field>
+        <field name="arch" type="xml">
+            <search string="Search Role">
+                <field
+                    name="name"
+                    string="Role"
+                    filter_domain="['|', ('name', 'ilike', self), ('code', 'ilike', self)]"
+                />
+                <separator />
+                <filter
+                    string="Inactive Roles"
+                    name="inactive"
+                    domain="[('active', '=', False)]"
+                />
+            </search>
+        </field>
+    </record>
+    <record id="res_role_view_tree" model="ir.ui.view">
+        <field name="name">res.role.tree</field>
+        <field name="model">res.role</field>
+        <field name="arch" type="xml">
+            <tree string="Roles">
+                <field name="name" />
+                <field name="code" />
+                <field name="active" />
+            </tree>
+        </field>
+    </record>
+    <record id="res_role_view_form" model="ir.ui.view">
+        <field name="name">res.role.form</field>
+        <field name="model">res.role</field>
+        <field name="arch" type="xml">
+            <form string="Role">
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button
+                            class="oe_stat_button"
+                            name="export_xls"
+                            type="object"
+                            string="Export"
+                            help="Export Role Policy to Excel"
+                            icon="fa-download"
+                        >
+            </button>
+                        <button
+                            class="oe_stat_button"
+                            name="import_policy"
+                            type="object"
+                            string="Import"
+                            help="Import Role Policy from Excel"
+                            icon="fa-upload"
+                        />
+                        <button
+                            class="oe_stat_button"
+                            type="object"
+                            name="toggle_active"
+                            icon="fa-archive"
+                        >
+                            <field
+                                name="active"
+                                widget="boolean_button"
+                                options="{'terminology': 'archive'}"
+                            />
+                        </button>
+                    </div>
+                    <group name="main">
+                        <group name="main-left">
+                            <field name="name" />
+                            <field name="code" />
+                        </group>
+                        <group name="main-right">
+                            <field name="company_id" />
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Role ACLs" id="acl_ids">
+                            <field name="acl_ids" />
+                        </page>
+                        <page string="Menu Items" id="menu_ids">
+                            <field
+                                name="menu_ids"
+                                context="{'ir.ui.menu.full_list': True}"
+                            >
+                                <tree default_order="complete_name">
+                                    <field name="complete_name" />
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="Window Action Bindings" id="act_window_ids">
+                            <field name="act_window_ids">
+                                <tree default_order="res_model, name, xml_id">
+                                    <field name="res_model" />
+                                    <field name="name" />
+                                    <field name="xml_id" />
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="Server Action Bindings" id="act_server_ids">
+                            <field name="act_server_ids">
+                                <tree default_order="model_name, name, xml_id">
+                                    <field name="model_name" />
+                                    <field name="name" />
+                                    <field name="xml_id" />
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="Report Action Bindings" id="act_server_ids">
+                            <field name="act_report_ids">
+                                <tree default_order="model, name, report_type">
+                                    <field name="model" />
+                                    <field name="name" />
+                                    <field name="report_name" />
+                                    <field name="report_type" />
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="View Modifier Rules" id="modifier_rule_ids">
+                            <field name="modifier_rule_ids" />
+                        </page>
+                        <page
+                            string="View Type Attributes"
+                            id="view_type_attribute_ids"
+                        >
+                            <field name="view_type_attribute_ids" />
+                        </page>
+                        <page
+                            string="View Model Operations"
+                            id="view_model_operation_ids"
+                        >
+                            <field name="model_operation_ids" />
+                        </page>
+                        <page string="Model Methods" id="model_method_ids">
+                            <field name="model_method_ids">
+                                <tree editable="top">
+                                    <field name="name" />
+                                    <field name="model_id" />
+                                    <field name="method" />
+                                    <field name="active" />
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="Record Rules" id="record_rule_ids">
+                            <p>
+                This functionality is planned for a later release.<br />
+                In the meanwhile define your record rules by using the Role Groups via Settings -> Technical -> Security -> Record Rules.<br
+                                />
+              </p>
+                        </page>
+                        <page string="Users">
+                            <field name="user_ids" id="user_ids" />
+                        </page>
+                    </notebook>
+                    <div class="oe_chatter">
+                        <field name="message_ids" widget="mail_thread" />
+                    </div>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="res_role_action" model="ir.actions.act_window">
+        <field name="name">Roles</field>
+        <field name="res_model">res.role</field>
+        <field name="view_mode">tree,form</field>
+        <field name="context">{'active_test': False}</field>
+    </record>
+</odoo>

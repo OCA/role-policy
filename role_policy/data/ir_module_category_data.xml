@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <data noupdate="1">
+        <record id="ir_module_category_role" model="ir.module.category">
+            <field name="name">Roles and Role ACLs</field>
+            <field name="visible" eval="0" />
+        </record>
+    </data>
+</odoo>

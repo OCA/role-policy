@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="res_role_acl_view_search" model="ir.ui.view">
+        <field name="name">res.role.acl.search</field>
+        <field name="model">res.role.acl</field>
+        <field name="arch" type="xml">
+            <search string="Search ACL">
+                <field name="name" string="Name" />
+                <field name="role_id" string="Role" />
+                <field name="model_id" string="Model" />
+                <separator />
+                <filter
+                    string="Inactive ACLs"
+                    name="inactive"
+                    domain="[('active', '=', False)]"
+                />
+            </search>
+        </field>
+    </record>
+    <record id="res_role_acl_view_tree" model="ir.ui.view">
+        <field name="name">res.role.acl.tree</field>
+        <field name="model">res.role.acl</field>
+        <field name="arch" type="xml">
+            <tree string="Role ACL" editable="bottom">
+                <field
+                    name="role_id"
+                    readonly="not context.get('base_model_name')"
+                    invisible="context.get('base_model_name')"
+                />
+                <field name="model_id" />
+                <field name="perm_read" />
+                <field name="perm_write" />
+                <field name="perm_create" />
+                <field name="perm_unlink" />
+                <field name="name" optional="hide" force_save="1" />
+                <field
+                    name="company_id"
+                    optional="hide"
+                    readonly="not context.get('base_model_name')"
+                    invisible="context.get('base_model_name')"
+                />
+                <field name="group_id" optional="hide" force_save="1" />
+                <field name="access_id" optional="hide" force_save="1" />
+                <field name="active" optional="show" />
+            </tree>
+        </field>
+    </record>
+    <record id="res_role_acl_action" model="ir.actions.act_window">
+        <field name="name">Role ACLs</field>
+        <field name="res_model">res.role.acl</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+</odoo>

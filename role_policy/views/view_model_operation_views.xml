@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="view_model_operation_view_search" model="ir.ui.view">
+        <field name="name">view.model.operation.search</field>
+        <field name="model">view.model.operation</field>
+        <field name="arch" type="xml">
+            <search string="Search Rule">
+                <field name="model" string="Model" />
+                <separator />
+                <filter
+                    string="Inactive Rules"
+                    name="inactive"
+                    domain="[('active', '=', False)]"
+                />
+            </search>
+        </field>
+    </record>
+    <record id="view_model_operation_view_tree" model="ir.ui.view">
+        <field name="name">view.model.operation.tree</field>
+        <field name="model">view.model.operation</field>
+        <field name="arch" type="xml">
+            <tree string="View Model Operations" editable="bottom">
+                <field name="sort" invisible="1" />
+                <field
+                    name="role_id"
+                    readonly="not context.get('base_model_name')"
+                    invisible="context.get('base_model_name')"
+                />
+                <field
+                    name="model"
+                    placeholder="specify 'default' or model name such as 'sale.order' "
+                />
+                <field name="priority" string="Prio" />
+                <field name="operation" />
+                <field name="disable" />
+                <field name="active" optional="show" />
+            </tree>
+        </field>
+    </record>
+    <record id="view_model_operation_action" model="ir.actions.act_window">
+        <field name="name">View Model Operations</field>
+        <field name="res_model">view.model.operation</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+</odoo>

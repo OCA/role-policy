@@ -1,0 +1,70 @@
+<?xml version="1.0" ?>
+<odoo>
+    <record id="security_policy_tag_view_search" model="ir.ui.view">
+        <field name="name">security.policy.tag.search</field>
+        <field name="model">security.policy.tag</field>
+        <field name="arch" type="xml">
+            <search string="Search Tag">
+                <field
+                    name="name"
+                    string="Name / Code"
+                    filter_domain="['|', ('name', 'ilike', self), ('code', '=ilike', self)]"
+                />
+                <field name="note" string="Description" />
+                <separator />
+                <filter
+                    name="inactive"
+                    string="Archived"
+                    domain="[('active', '=', False)]"
+                />
+            </search>
+        </field>
+    </record>
+    <record id="security_policy_tag_view_tree" model="ir.ui.view">
+        <field name="name">security.policy.tag.tree</field>
+        <field name="model">security.policy.tag</field>
+        <field name="arch" type="xml">
+            <tree string="Tags">
+                <field name="code" />
+                <field name="name" />
+            </tree>
+        </field>
+    </record>
+    <record id="security_policy_tag_view_form" model="ir.ui.view">
+        <field name="name">security.policy.tag.form</field>
+        <field name="model">security.policy.tag</field>
+        <field name="arch" type="xml">
+            <form string="Tag">
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button
+                            class="oe_stat_button"
+                            type="object"
+                            name="toggle_active"
+                            icon="fa-archive"
+                        >
+                            <field
+                                name="active"
+                                widget="boolean_button"
+                                options="{'terminology': 'archive'}"
+                            />
+                        </button>
+                    </div>
+                    <group name="main" col="4">
+                        <field name="code" />
+                        <field name="name" />
+                    </group>
+                    <group name="note" colspan="4">
+                        <field name="note" nolabel="1" />
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="security_policy_tag_action" model="ir.actions.act_window">
+        <field name="name">Tags</field>
+        <field name="res_model">security.policy.tag</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="security_policy_tag_view_search" />
+    </record>
+</odoo>

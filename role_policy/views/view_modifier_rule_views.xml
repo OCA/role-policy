@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="view_modifier_rule_view_search" model="ir.ui.view">
+        <field name="name">view.modifier.rule.search</field>
+        <field name="model">view.modifier.rule</field>
+        <field name="arch" type="xml">
+            <search string="Search Rule">
+                <field name="model_id" string="Model" />
+                <separator />
+                <filter
+                    string="Inactive Rules"
+                    name="inactive"
+                    domain="[('active', '=', False)]"
+                />
+            </search>
+        </field>
+    </record>
+    <record id="view_modifier_rule_view_tree" model="ir.ui.view">
+        <field name="name">view.modifier.rule.tree</field>
+        <field name="model">view.modifier.rule</field>
+        <field name="arch" type="xml">
+            <tree string="View Modifiers Rule" editable="bottom">
+                <field name="sequence" widget="handle" />
+                <field
+                    name="role_id"
+                    readonly="not context.get('base_model_name')"
+                    invisible="context.get('base_model_name')"
+                />
+                <field
+                    name="model_id"
+                    attrs="{'readonly': [('view_type', '=', 'qweb')]}"
+                    force_save="1"
+                />
+                <field name="model" optional="hide" />
+                <field name="priority" string="Prio" />
+                <field name="view_id" attrs="{'required': [('remove', '=', True)]}" />
+                <field name="view_xml_id" optional="hide" />
+                <field
+                    name="view_type"
+                    attrs="{'readonly': [('view_id', '!=', False)]}"
+                    force_save="1"
+                />
+                <field name="element_ui" />
+                <field
+                    name="remove"
+                    attrs="{'readonly': [('view_id', '=', False)]}"
+                    force_save="1"
+                />
+                <field name="modifier_invisible" />
+                <field name="modifier_readonly" />
+                <field name="modifier_required" />
+                <field name="active" optional="show" />
+                <field name="element" optional="hide" />
+                <field name="tag_ids" widget="many2many_tags" optional="hide" />
+            </tree>
+        </field>
+    </record>
+    <record id="view_modifier_rule_action" model="ir.actions.act_window">
+        <field name="name">View Modifiers Rules</field>
+        <field name="res_model">view.modifier.rule</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+</odoo>
