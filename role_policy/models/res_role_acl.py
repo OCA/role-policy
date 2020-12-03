@@ -39,7 +39,8 @@ class ResRoleAcl(models.Model):
 
     @api.model
     def create(self, vals):
-        self._create_role_acl(vals)
+        if vals.get("active", True):
+            self._create_role_acl(vals)
         return super().create(vals)
 
     def unlink(self):
@@ -92,6 +93,11 @@ class ResRoleAcl(models.Model):
                         "access_id": access.id,
                     }
                 )
+            if "active" in vals and vals["active"] != acl.active:
+                if not vals["active"]:
+                    acl.role_id.group_id.implied_ids = [(3, acl_group.id)]
+                else:
+                    acl.role_id.group_id.implied_ids = [(4, acl_group.id)]
 
     def _compute_crud(self, vals):
         if "perm_create" in vals:
