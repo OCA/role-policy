@@ -267,4 +267,5 @@ Roadmap
 - Role Policy traceability
 - Unit tests
 - Record rules
+- Add support for the "Settings" menus (res.config.settings screens)
 
