@@ -11,6 +11,19 @@ _logger = logging.getLogger(__name__)
 class BaseModel(models.AbstractModel):
     _inherit = "base"
 
+    def _role_policy_untouchable_groups(self):
+        """
+        The role policy will remove all groups from the fields
+        except the ones defined in this method.
+        """
+        return [
+            "base.group_no_one",
+            "base.group_erp_manager",
+            "base.group_system",
+            "base.group_portal",
+            "base.group_public",
+        ]
+
     @api.model
     def user_has_groups(self, groups):
         """
@@ -27,13 +40,7 @@ class BaseModel(models.AbstractModel):
         role_groups = []
         for group_ext_id in groups.split(","):
             xml_id = group_ext_id[0] == "!" and group_ext_id[1:] or group_ext_id
-            if xml_id in [
-                "base.group_no_one",
-                "base.group_erp_manager",
-                "base.group_system",
-                "base.group_portal",
-                "base.group_public",
-            ]:
+            if xml_id in self._role_policy_untouchable_groups():
                 role_groups.append(group_ext_id)
             else:
                 group = self.env.ref(xml_id)
