@@ -42,14 +42,6 @@ class IrUiView(models.Model):
         res["arch"] = arch
         return res
 
-    def _apply_group(self, model, node, modifiers, fields):
-        """
-        Skip group processing on field and view level.
-        """
-        if self.env.context.get("force_apply_group"):
-            return super()._apply_group(model, node, modifiers, fields)
-        return True
-
     @api.model
     def get_inheriting_views_arch(self, view_id, model):
         archs = super().get_inheriting_views_arch(view_id, model)
@@ -186,9 +178,15 @@ class IrUiView(models.Model):
         return self._remove_security_groups(source)
 
     def _remove_security_groups(self, source):
+        untouchable_groups = self._role_policy_untouchable_groups()
         if "groups=" in source:
             s0, s1 = source.split("groups=", 1)
-            s2 = s1.split('"', 2)[2]
+            s1_split = s1.split('"', 2)
+            groups = s1_split[1].split(",")
+            untouchables = [x for x in groups if x in untouchable_groups]
+            if untouchables:
+                s0 += 'groups="{}" '.format(",".join(untouchables))
+            s2 = s1_split[2]
             return s0 + self._remove_security_groups(s2)
         else:
             return source
