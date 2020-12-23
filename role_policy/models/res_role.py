@@ -88,6 +88,32 @@ class ResRole(models.Model):
     def _default_company_id(self):
         return self.env.user.company_id
 
+    def init(self):
+        """
+        Role groups that have been added to e.g. ir.ui.menu will
+        be removed during 'upgrade all' processing. This happens
+        only for those records that have the groups_id set in the
+        base module (e.g. Settings menu).
+        We cannot prevent this since the addons path modules are not yet
+        imported when the xml files of the base module are loaded.
+        As a consequence we use the init method to restore the role groups.
+        """
+        super().init()
+        if self.env.context.get("module") == "role_policy":
+            self._init_restore_role_groups()
+
+    def _init_restore_role_groups(self):
+        roles = self.with_context(
+            dict(self.env.context, role_policy_init=True, active_test=False)
+        ).search([])
+        for role in roles:
+            for f in ["menu_ids", "act_window_ids", "act_server_ids", "act_report_ids"]:
+                torestore = [
+                    x for x in getattr(role, f) if role.group_id not in x.groups_id
+                ]
+                for rec in torestore:
+                    rec.update({"groups_id": [(4, role.group_id.id)]})
+
     @api.model
     def create(self, vals):
         self = self.with_context(dict(self.env.context, role_policy_init=True))
