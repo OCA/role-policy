@@ -125,10 +125,17 @@ class ResRole(models.Model):
                     model = self._fields[f].comodel_name
                     for entry in vals[f]:
                         if entry[0] == 6:
+                            # Addition or removal in M2M result in update of all
+                            # items. We only need the differences.
                             model_ids = getattr(role, f).ids
-                            updates.append((model, model_ids, [(3, role_gid)]))
-                            if entry[2]:
-                                updates.append((model, entry[2], [(4, role_gid)]))
+                            old_model_ids = set(model_ids)
+                            new_model_ids = set(entry[2])
+                            removal_ids = old_model_ids - new_model_ids
+                            addition_ids = new_model_ids - old_model_ids
+                            if removal_ids:
+                                updates.append((model, removal_ids, [(3, role_gid)]))
+                            if addition_ids:
+                                updates.append((model, addition_ids, [(4, role_gid)]))
                         elif entry[0] in (3, 4):
                             updates.append((model, [entry[1]], [(entry[0], role_gid)]))
                         else:
