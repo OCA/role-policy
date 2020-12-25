@@ -88,6 +88,32 @@ class ResRole(models.Model):
     def _default_company_id(self):
         return self.env.user.company_id
 
+    def init(self):
+        """
+        Role groups that have been added to e.g. ir.ui.menu will
+        be removed during 'upgrade all' processing. This happens
+        only for those records that have the groups_id set in the
+        base module (e.g. Settings menu).
+        We cannot prevent this since the addons path modules are not yet
+        imported when the xml files of the base module are loaded.
+        As a consequence we use the init method to restore the role groups.
+        """
+        super().init()
+        if self.env.context.get("module") == "role_policy":
+            self._init_restore_role_groups()
+
+    def _init_restore_role_groups(self):
+        roles = self.with_context(
+            dict(self.env.context, role_policy_init=True, active_test=False)
+        ).search([])
+        for role in roles:
+            for f in ["menu_ids", "act_window_ids", "act_server_ids", "act_report_ids"]:
+                torestore = [
+                    x for x in getattr(role, f) if role.group_id not in x.groups_id
+                ]
+                for rec in torestore:
+                    rec.update({"groups_id": [(4, role.group_id.id)]})
+
     @api.model
     def create(self, vals):
         self = self.with_context(dict(self.env.context, role_policy_init=True))
@@ -125,10 +151,17 @@ class ResRole(models.Model):
                     model = self._fields[f].comodel_name
                     for entry in vals[f]:
                         if entry[0] == 6:
+                            # Addition or removal in M2M result in update of all
+                            # items. We only need the differences.
                             model_ids = getattr(role, f).ids
-                            updates.append((model, model_ids, [(3, role_gid)]))
-                            if entry[2]:
-                                updates.append((model, entry[2], [(4, role_gid)]))
+                            old_model_ids = set(model_ids)
+                            new_model_ids = set(entry[2])
+                            removal_ids = old_model_ids - new_model_ids
+                            addition_ids = new_model_ids - old_model_ids
+                            if removal_ids:
+                                updates.append((model, removal_ids, [(3, role_gid)]))
+                            if addition_ids:
+                                updates.append((model, addition_ids, [(4, role_gid)]))
                         elif entry[0] in (3, 4):
                             updates.append((model, [entry[1]], [(entry[0], role_gid)]))
                         else:
