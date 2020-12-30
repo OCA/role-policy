@@ -152,6 +152,12 @@ class IrUiView(models.Model):
                         rule_node.set(modifier, rule_mod)
                     elif rule_mod:
                         attrs.append((modifier, rule_mod))
+                    if (
+                        mod == "modifier_readonly"
+                        and rule_node.tag == "field"
+                        and rule_mod
+                    ):
+                        rule_node.set("force_save", "1")
                 if attrs:
                     attrs = ", ".join(["'{}': {}".format(x[0], x[1]) for x in attrs])
                     rule_node.set("attrs", "{" + attrs + "}")
