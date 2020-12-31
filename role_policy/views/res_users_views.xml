@@ -1,15 +1,36 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <odoo>
+
     <record id="view_users_form" model="ir.ui.view">
         <field name="name">res.users.form</field>
         <field name="model">res.users</field>
-        <field name="inherit_id" ref="base.view_users_form" />
+        <field name="inherit_id" ref="base.view_users_form"/>
         <field name="arch" type="xml">
             <xpath expr="//notebook" position="inside">
-                <page name="roles" string="Roles">
-                    <field name="role_ids" />
+                <page name="roles" string="Roles" attrs="{'invisible': [('exclude_from_role_policy', '=', True)]}">
+                    <group name="roles">
+                        <field name="role_ids" widget="many2many_tags"/>
+                        <field name="enabled_role_ids" widget="many2many_tags"/>
+                        <field name="exclude_from_role_policy" invisible="1"/>
+                    </group>
                 </page>
             </xpath>
         </field>
     </record>
+
+    <record id="view_users_form_simple_modif" model="ir.ui.view">
+        <field name="name">res.users.preferences.form</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="base.view_users_form_simple_modif"/>
+        <field name="arch" type="xml">
+            <field name="tz_offset" position="after">
+                <field name="role_ids" readonly="1" widget="many2many_tags"
+                       attrs="{'invisible': [('exclude_from_role_policy', '=', True)]}"/>
+                <field name="enabled_role_ids" widget="many2many_tags" readonly="0"
+                       attrs="{'invisible': [('exclude_from_role_policy', '=', True)]}"/>
+                <field name="exclude_from_role_policy" invisible="1"/>
+            </field>
+        </field>
+    </record>
+
 </odoo>

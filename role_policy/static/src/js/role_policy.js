@@ -20,7 +20,7 @@ odoo.define("role_policy.role_policy", function(require) {
                 create: "button.o-kanban-button-new",
                 import: "button.o_button_import",
             };
-            if (!session.is_admin) {
+            if (!session.exclude_from_role_policy) {
                 for (var button in buttons) {
                     var Operations = session.model_operations[button];
                     var hideButton = false;
@@ -45,7 +45,7 @@ odoo.define("role_policy.role_policy", function(require) {
     ListController.include({
         renderSidebar: function($node) {
             var sidebarProm = this._super($node);
-            if (session.is_admin) {
+            if (session.exclude_from_role_policy) {
                 return sidebarProm;
             }
             var exportOperations = session.model_operations.export;

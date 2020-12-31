@@ -91,8 +91,12 @@ class ViewModelOperation(models.Model):
         }
 
     def _get_rules(self, model=None):
+        rules = self.browse()
+        if self.env.user.exclude_from_role_policy:
+            return rules
         signature_fields = self._rule_signature_fields()
-        dom = [("role_id", "in", self.env.user.role_ids.ids)]
+        user_roles = self.env.user.enabled_role_ids or self.env.user.role_ids
+        dom = [("role_id", "in", user_roles.ids)]
         if model:
             dom.append(("model", "in", (model, "default")))
         all_rules = self.search(dom)
@@ -114,8 +118,6 @@ class ViewModelOperation(models.Model):
                 rules -= default_rules.filtered(
                     lambda r: r.operation in model_rules_operations
                 )
-        else:
-            rules = self.browse()
         return rules
 
     def _rule_signature_fields(self):

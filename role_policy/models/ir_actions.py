@@ -34,10 +34,8 @@ class IrActionsActions(models.Model):
     @api.model
     def get_bindings(self, model_name):
         res = super().get_bindings(model_name)
-        admin = self.env.ref("base.user_admin")
-        root = self.env.ref("base.user_root")
-        if self.env.user not in (admin, root):
-            user_roles = self.env.user.role_ids
+        if not self.env.user.exclude_from_role_policy:
+            user_roles = self.env.user.enabled_role_ids or self.env.user.role_ids
             user_groups = user_roles.mapped("group_id")
             res_roles = defaultdict(list)
             for k in res:
