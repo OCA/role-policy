@@ -1,4 +1,4 @@
-# Copyright 2020 Noviat
+# Copyright 2021 Noviat
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
 from lxml import etree
@@ -90,6 +90,8 @@ class ResUsers(models.Model):
         """
         Remove no role groups.
         """
+        if "enabled_role_ids" in vals:
+            self.clear_caches()
         if self.env.context.get("role_policy_bypass_write"):
             return super().write(vals)
         if "enabled_role_ids" not in self.SELF_WRITEABLE_FIELDS:
