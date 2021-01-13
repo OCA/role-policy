@@ -75,12 +75,23 @@ class ResUsers(models.Model):
                         raise NotImplementedError
                 vals["groups_id"] = [(6, 0, role_gids + gids)]
             vals_list[i] = vals
-        return super().create(vals_list)
+        users = super().create(vals_list)
+        ctx = dict(self.env.context, role_policy_bypass_write=True)
+        for user in users.with_context(ctx):
+            if user.exclude_from_role_policy:
+                continue
+            groups = user.groups_id
+            to_remove = groups.filtered(lambda r: r.id not in keep_ids and not r.role)
+            if to_remove:
+                user.groups_id -= to_remove
+        return users
 
     def write(self, vals):
         """
         Remove no role groups.
         """
+        if self.env.context.get("role_policy_bypass_write"):
+            return super().write(vals)
         if "enabled_role_ids" not in self.SELF_WRITEABLE_FIELDS:
             self.SELF_WRITEABLE_FIELDS.append("enabled_role_ids")
         vals = self._remove_reified_groups(vals)
