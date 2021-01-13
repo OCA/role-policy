@@ -194,3 +194,6 @@ class ResUsers(models.Model):
         if updates:
             user_vals["groups_id"] = updates
         super(ResUsers, user).write(user_vals)
+        if "role_ids" in vals:
+            ctx = dict(self.env.context, role_policy_bypass_write=True)
+            user.with_context(ctx)._onchange_role_ids()

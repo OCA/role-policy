@@ -83,7 +83,7 @@ The web modifier rules have a 'priority' field which determines the winning rule
 Combined roles may lead to unexpected results for the end user.
 E.g. a user can have access to a button in a certain role but loose that access in a combined role.
 
-A a user with multiple roles is able to select wich roles are enabled via his 'Preferences' (by default all his roles are combined).
+A user with multiple roles is able to select wich roles are enabled via his 'Preferences' (by default all his roles are combined).
 
 The view/view element approach is different from the other role policy rules in the sense that every view/view element is sent to the
 user interface since the standard security groups are removed at view rendering time. We do not want to introduce the administrative
@@ -107,18 +107,6 @@ View Type Attribute rules
 
 With this feature the view type attributes such as create, edit, delete, duplicate, import, export_xlsx become role based.
 Any such attribute can be replaced with these rules (e.g. role based decoration-%).
-
-|
-
-The View Type Attribute rules are NOT applied to the following users:
-
-- base.user_admin
-- base.user_root
-
-This is done to avoid that the admin user can no longer correct mistakes (e.g. when disabling edit on res.users).
-
-From a security standpoint it is recommended to use the admin account (base.user_admin) only in exceptional circumstances
-and create other accounts with administration rights to maintain the Odoo configuration.
 
 |
 
