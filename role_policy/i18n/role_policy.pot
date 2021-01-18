@@ -245,6 +245,11 @@ msgid "Element (internal)"
 msgstr ""
 
 #. module: role_policy
+#: model:ir.model.fields,field_description:role_policy.field_res_users__enabled_role_ids
+msgid "Enabled Roles"
+msgstr ""
+
+#. module: role_policy
 #: code:addons/role_policy/models/view_modifier_rule.py:0
 #, python-format
 msgid "Error in rule with ID %s: 'Remove' requires to define a view."
@@ -287,6 +292,11 @@ msgstr ""
 #: code:addons/role_policy/wizards/role_policy_import.py:0
 #, python-format
 msgid "Errors detected while importing sheet '%s'."
+msgstr ""
+
+#. module: role_policy
+#: model:ir.model.fields,field_description:role_policy.field_res_users__exclude_from_role_policy
+msgid "Exclude From Role Policy"
 msgstr ""
 
 #. module: role_policy
@@ -378,6 +388,15 @@ msgstr ""
 #: model:ir.model.fields,help:role_policy.field_res_role__message_has_error
 #: model:ir.model.fields,help:role_policy.field_res_role__message_has_sms_error
 msgid "If checked, some messages have a delivery error."
+msgstr ""
+
+#. module: role_policy
+#: model:ir.model.fields,help:role_policy.field_res_users__enabled_role_ids
+msgid ""
+"If you have multiple roles you may experience loss of functionality.\n"
+"E.g. Role 2 may hide a button which you need to do your job in Role 1.\n"
+"You can enable here a subset of your roles.\n"
+"Leave this field blank to enable all your roles."
 msgstr ""
 
 #. module: role_policy
@@ -941,6 +960,11 @@ msgstr ""
 #. module: role_policy
 #: model:ir.model.constraint,message:role_policy.constraint_view_modifier_rule_element_uniq
 msgid "The Element must be unique"
+msgstr ""
+
+#. module: role_policy
+#: model:ir.model.constraint,message:role_policy.constraint_res_role_acl_model_role_uniq
+msgid "The Model must be unique per role"
 msgstr ""
 
 #. module: role_policy
