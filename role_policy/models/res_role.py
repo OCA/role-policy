@@ -123,7 +123,6 @@ class ResRole(models.Model):
         for f in ["menu_ids", "act_window_ids", "act_server_ids", "act_report_ids"]:
             if f in vals and vals[f][0][2]:
                 getattr(role, f).write({"groups_id": [(4, role_group.id)]})
-        role.user_ids += self.env.ref("base.user_admin")
         return role
 
     def _create_role_group(self, vals):

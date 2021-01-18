@@ -82,9 +82,8 @@ The web modifier rules have a 'priority' field which determines the winning rule
 
 Combined roles may lead to unexpected results for the end user.
 E.g. a user can have access to a button in a certain role but loose that access in a combined role.
-Since the 'Admin' users automatically receives all roles, the result of combined roles can be tested via the admin user.
 
-In a future release a user with multiple roles will also be able to select wich roles are active (by default all his roles are combined).
+A user with multiple roles is able to select wich roles are enabled via his 'Preferences' (by default all his roles are combined).
 
 The view/view element approach is different from the other role policy rules in the sense that every view/view element is sent to the
 user interface since the standard security groups are removed at view rendering time. We do not want to introduce the administrative
@@ -164,6 +163,21 @@ e.g. the module 'role_policy_account' adds the account.move,post method to this 
 
 
 Methods defined in this set are available only for those roles have added them in the "Model Methods" notebook page.
+
+|
+
+Admin User
+----------
+
+The Role Policy rules are NOT applied to the following users:
+
+- base.user_admin
+- base.user_root
+
+This is done to avoid that the admin user can no longer correct mistakes (e.g. when disabling edit on res.users).
+
+From a security standpoint it is recommended to use the admin account (base.user_admin) only in exceptional circumstances
+and create other accounts with administration rights to maintain the Odoo configuration.
 
 |
 
@@ -261,11 +275,11 @@ Roadmap
 -------
 
 - Rules syntax checker button
-- Allow a user with multiple roles to select wich roles are active
 - Clean-up/adapt standard user & groups screens for Roles
 - Generate clear "role" error message when hitting e.g. ACL error
 - Role Policy traceability
 - Unit tests
+- Role Selector: take only ACLs of enabled roles into account
 - Record rules
 - Add support for the "Settings" menus (res.config.settings screens)
 

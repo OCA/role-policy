@@ -228,10 +228,14 @@ class ViewModifierRule(models.Model):
             self.model_id = False
 
     def _get_rules(self, model, view_id, view_type=False, remove=False):
+        rules = self.browse()
+        if self.env.user.exclude_from_role_policy:
+            return rules
         signature_fields = self._rule_signature_fields()
+        user_roles = self.env.user.enabled_role_ids or self.env.user.role_ids
         dom = [
             ("model", "=", model),
-            ("role_id", "in", self.env.user.role_ids.ids),
+            ("role_id", "in", user_roles.ids),
             ("remove", "=", remove),
         ]
         if view_id:
@@ -257,8 +261,6 @@ class ViewModifierRule(models.Model):
                     if signature != previous_signature:
                         rules += rule
                     previous_signature = signature
-        else:
-            rules = self.browse()
         return rules
 
     def _rule_signature_fields(self):

@@ -44,13 +44,11 @@ class IrUiMenu(models.Model):
         """
         Hide all menus without the role_group(s) or the user.
         """
-        admin = self.env.ref("base.user_admin")
-        root = self.env.ref("base.user_root")
-        if self.env.user in (admin, root):
+        if self.env.user.exclude_from_role_policy:
             visible_ids = self._visible_menu_ids_user_admin(debug=debug)
         else:
             visible_ids = super()._visible_menu_ids(debug=debug)
-            user_roles = self.env.user.role_ids
+            user_roles = self.env.user.enabled_role_ids or self.env.user.role_ids
             user_groups = user_roles.mapped("group_id")
             menus = self.browse()
             for menu in self.browse(visible_ids):

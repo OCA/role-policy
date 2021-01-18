@@ -11,6 +11,7 @@ class IrHttp(models.AbstractModel):
     def session_info(self):
         res = super().session_info()
         user = request.env.user
+        user_roles = self.env.user.enabled_role_ids or self.env.user.role_ids
         operations = ["archive", "create", "export", "import"]
         rules = (
             self.env["view.model.operation"]
@@ -22,8 +23,9 @@ class IrHttp(models.AbstractModel):
             model_operations[rule.operation][rule.model] = rule.disable
         res.update(
             {
-                "roles": [(r.id, r.code) for r in user.role_ids],
+                "roles": [(r.id, r.code) for r in user_roles],
                 "model_operations": model_operations,
+                "exclude_from_role_policy": user.exclude_from_role_policy,
             }
         )
         return res

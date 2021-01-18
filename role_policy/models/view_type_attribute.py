@@ -48,8 +48,12 @@ class ViewTypeAttribute(models.Model):
         pass
 
     def _get_rules(self, view_id):
+        rules = self.browse()
+        if self.env.user.exclude_from_role_policy:
+            return rules
         signature_fields = self._rule_signature_fields()
-        dom = [("view_id", "=", view_id), ("role_id", "in", self.env.user.role_ids.ids)]
+        user_roles = self.env.user.enabled_role_ids or self.env.user.role_ids
+        dom = [("view_id", "=", view_id), ("role_id", "in", user_roles.ids)]
         all_rules = self.search(dom)
         all_rules = all_rules.sorted(key=lambda r: (r.attrib or "", r.priority))
         if all_rules:
@@ -62,8 +66,6 @@ class ViewTypeAttribute(models.Model):
                     if signature != previous_signature:
                         rules += rule
                     previous_signature = signature
-        else:
-            rules = self.browse()
         return rules
 
     def _rule_signature_fields(self):

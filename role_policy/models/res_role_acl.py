@@ -15,6 +15,11 @@ class ResRoleAcl(models.Model):
     _description = "Role ACL"
     _order = "name"
     _sql_constraints = [
+        (
+            "model_role_uniq",
+            "unique(model_id, role_id, company_id)",
+            "The Model must be unique per role",
+        ),
         ("name_uniq", "unique(name, company_id)", "The Name must be unique"),
         (
             "crud_nut_null",
