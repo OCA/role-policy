@@ -1,9 +1,10 @@
-# Copyright 2020 Noviat
+# Copyright 2020-2021 Noviat
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
 import logging
 
 from odoo import api, fields, models
+from odoo.tools import config
 
 _logger = logging.getLogger(__name__)
 
@@ -49,7 +50,7 @@ class ViewTypeAttribute(models.Model):
 
     def _get_rules(self, view_id):
         rules = self.browse()
-        if self.env.user.exclude_from_role_policy:
+        if self.env.user.exclude_from_role_policy or config.get("test_enable"):
             return rules
         signature_fields = self._rule_signature_fields()
         user_roles = self.env.user.enabled_role_ids or self.env.user.role_ids

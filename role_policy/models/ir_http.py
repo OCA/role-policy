@@ -1,8 +1,9 @@
-# Copyright 2020 Noviat
+# Copyright 2020-2021 Noviat
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
 from odoo import models
 from odoo.http import request
+from odoo.tools import config
 
 
 class IrHttp(models.AbstractModel):
@@ -25,7 +26,8 @@ class IrHttp(models.AbstractModel):
             {
                 "roles": [(r.id, r.code) for r in user_roles],
                 "model_operations": model_operations,
-                "exclude_from_role_policy": user.exclude_from_role_policy,
+                "exclude_from_role_policy": user.exclude_from_role_policy
+                or config.get("test_enable"),
             }
         )
         return res
