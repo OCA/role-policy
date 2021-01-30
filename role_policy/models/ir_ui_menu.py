@@ -1,9 +1,10 @@
-# Copyright 2020 Noviat
+# Copyright 2020-2021 Noviat
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
 import logging
 
 from odoo import api, fields, models, tools
+from odoo.tools import config
 
 _logger = logging.getLogger(__name__)
 
@@ -44,7 +45,7 @@ class IrUiMenu(models.Model):
         """
         Hide all menus without the role_group(s) or the user.
         """
-        if self.env.user.exclude_from_role_policy:
+        if self.env.user.exclude_from_role_policy or config.get("test_enable"):
             visible_ids = self._visible_menu_ids_user_admin(debug=debug)
         else:
             visible_ids = super()._visible_menu_ids(debug=debug)

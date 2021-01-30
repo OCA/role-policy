@@ -1,9 +1,10 @@
-# Copyright 2020 Noviat
+# Copyright 2020-2021 Noviat
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
 import logging
 
 from odoo import api, models
+from odoo.tools import config
 
 _logger = logging.getLogger(__name__)
 
@@ -30,7 +31,11 @@ class BaseModel(models.AbstractModel):
         Disable no-role groups except for user_admin & user_root.
         """
         user = self.env.user
-        if user.exclude_from_role_policy or user == self.env.ref("base.public_user"):
+        if (
+            user.exclude_from_role_policy
+            or user == self.env.ref("base.public_user")
+            or config.get("test_enable")
+        ):
             return super().user_has_groups(groups)
 
         role_groups = []

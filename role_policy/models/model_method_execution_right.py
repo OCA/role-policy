@@ -1,10 +1,11 @@
-# Copyright 2020 Noviat
+# Copyright 2020-2021 Noviat
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
 import logging
 
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
+from odoo.tools import config
 
 _logger = logging.getLogger(__name__)
 
@@ -56,7 +57,7 @@ class ModelMethodExecutionRight(models.Model):
 
     @api.model
     def check_right(self, name, raise_exception=True):
-        if self.env.user.exclude_from_role_policy:
+        if self.env.user.exclude_from_role_policy or config.get("test_enable"):
             return True
         user_roles = self.env.user.enabled_role_ids or self.env.user.role_ids
         model_methods = user_roles.mapped("model_method_ids").filtered(

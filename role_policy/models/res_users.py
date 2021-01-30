@@ -1,9 +1,10 @@
-# Copyright 2021 Noviat
+# Copyright 2020-2021 Noviat
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
 from lxml import etree
 
 from odoo import api, fields, models
+from odoo.tools import config
 
 
 class ResUsers(models.Model):
@@ -53,6 +54,9 @@ class ResUsers(models.Model):
         """
         Remove no role groups.
         """
+        if config.get("test_enable"):
+            return super().create(vals_list)
+
         keep_ids = self._get_role_policy_group_keep_ids()
         for i, vals in enumerate(vals_list):
             vals = self._remove_reified_groups(vals)
@@ -90,10 +94,13 @@ class ResUsers(models.Model):
         """
         Remove no role groups.
         """
+        if self.env.context.get("role_policy_bypass_write") or config.get(
+            "test_enable"
+        ):
+            return super().write(vals)
+
         if "enabled_role_ids" in vals:
             self.clear_caches()
-        if self.env.context.get("role_policy_bypass_write"):
-            return super().write(vals)
         if "enabled_role_ids" not in self.SELF_WRITEABLE_FIELDS:
             self.SELF_WRITEABLE_FIELDS.append("enabled_role_ids")
         vals = self._remove_reified_groups(vals)
@@ -131,10 +138,12 @@ class ResUsers(models.Model):
 
     @api.model
     def _has_group(self, group_ext_id):
-        if self.env.context.get("role_policy_has_groups_ok"):
-            return True
-        else:
+        if not self.env.context.get("role_policy_has_groups_ok") or config.get(
+            "test_enable"
+        ):
             return super()._has_group(group_ext_id)
+        else:
+            return True
 
     @api.model
     def fields_view_get(
