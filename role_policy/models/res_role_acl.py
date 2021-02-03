@@ -32,7 +32,9 @@ class ResRoleAcl(models.Model):
     role_id = fields.Many2one(comodel_name="res.role", required=True)
     model_id = fields.Many2one(comodel_name="ir.model", required=True)
     group_id = fields.Many2one(comodel_name="res.groups", readonly=True)
-    access_id = fields.Many2one(comodel_name="ir.model.access", readonly=True)
+    access_id = fields.Many2one(
+        comodel_name="ir.model.access", ondelete="restrict", readonly=True
+    )
     perm_read = fields.Boolean(string="Read Access")
     perm_write = fields.Boolean(string="Write Access")
     perm_create = fields.Boolean(string="Create Access")
