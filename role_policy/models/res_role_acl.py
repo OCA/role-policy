@@ -90,6 +90,7 @@ class ResRoleAcl(models.Model):
                     (3, old_acl_group.id),
                     (4, acl_group.id),
                 ]
+                acl.role_id.user_ids.update({"groups_id": [(3, old_acl_group.id)]})
                 access = self._compute_access(model, crud, acl_group)
                 vals.update(
                     {
