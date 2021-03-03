@@ -279,7 +279,6 @@ Roadmap
 - Generate clear "role" error message when hitting e.g. ACL error
 - Role Policy traceability
 - Unit tests
-- Role Selector: take only ACLs of enabled roles into account
 - Record rules
 - Add support for the "Settings" menus (res.config.settings screens)
 
