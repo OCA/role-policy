@@ -139,7 +139,18 @@ class ResUsers(models.Model):
             role_node = view.xpath(expr)
             if role_node:
                 group_el = role_node[0].getparent()
-                group_el.getparent().remove(group_el)
+                remove = False
+                for el in group_el:
+                    if el.tag == "separator":
+                        if (
+                            "string" in el.attrib
+                            and el.attrib["string"] == role_categ.name
+                        ):
+                            remove = True
+                        else:
+                            break
+                    if remove:
+                        group_el.remove(el)
                 res["arch"] = etree.tostring(view, encoding="unicode")
         return res
 
