@@ -37,6 +37,16 @@ class ResUsers(models.Model):
         compute="_compute_exclude_from_role_policy", store=True
     )
 
+    def __init__(self, pool, cr):
+        """ Override of __init__ to add access rights.
+        Access rights are disabled by default, but allowed on some specific
+        fields defined in self.SELF_{READ/WRITE}ABLE_FIELDS.
+        """
+        super().__init__(pool, cr)
+        # duplicate list to avoid modifying the original reference
+        type(self).SELF_WRITEABLE_FIELDS = list(self.SELF_WRITEABLE_FIELDS)
+        type(self).SELF_WRITEABLE_FIELDS.extend(["enabled_role_ids"])
+
     def _compute_exclude_from_role_policy(self):
         for user in self:
             if user in (
@@ -88,15 +98,14 @@ class ResUsers(models.Model):
         return users
 
     def write(self, vals):
-        if self.env.context.get("role_policy_bypass_write") or config.get(
-            "test_enable"
-        ):
+        if self.env.context.get("role_policy_bypass_write"):
             return super(ResUsersBase, self).write(vals)
+
+        if config.get("test_enable"):
+            return super().write(vals)
 
         if "enabled_role_ids" in vals:
             self.clear_caches()
-        if "enabled_role_ids" not in self.SELF_WRITEABLE_FIELDS:
-            self.SELF_WRITEABLE_FIELDS.append("enabled_role_ids")
         vals = self._remove_reified_groups(vals)
         if not any([x in vals for x in ("groups_id", "role_ids", "enabled_role_ids")]):
             return super().write(vals)
