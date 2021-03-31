@@ -12,6 +12,15 @@ _logger = logging.getLogger(__name__)
 class IrActionsActions(models.Model):
     _inherit = "ir.actions.actions"
 
+    def __getattribute__(self, item):
+        """
+        ignore role groups for the 'exclude_from_role_policy' users
+        """
+        res = super().__getattribute__(item)
+        if item == "groups_id" and self.env.user.exclude_from_role_policy:
+            res = res.filtered(lambda r: not r.role)
+        return res
+
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
