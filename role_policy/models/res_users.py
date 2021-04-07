@@ -104,10 +104,12 @@ class ResUsers(models.Model):
         if config.get("test_enable"):
             return super().write(vals)
 
-        if "enabled_role_ids" in vals:
+        if "enabled_role_ids" in vals and vals.get("enabled_roles"):
             self.clear_caches()
         vals = self._remove_reified_groups(vals)
-        if not any([x in vals for x in ("groups_id", "role_ids", "enabled_role_ids")]):
+        if not any(
+            [vals.get(x) for x in ("groups_id", "role_ids", "enabled_role_ids")]
+        ):
             return super().write(vals)
 
         for user in (self.env.ref("base.user_admin"), self.env.ref("base.user_root")):
