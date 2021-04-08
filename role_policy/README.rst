@@ -200,7 +200,7 @@ ACLs
 
 The only objects that are available when creating a new user are the objects with a
 
-- global ACL (e.g. 'res_company_grwithout group (e.g. res_country group_user_all which grants read access on res.country)
+- global ACL (e.g. res_country group_user_all which grants read access on res.country)
 - 'base.group_user' ACL (e.g. ir_ui_menu group_user which grants read access on ir.ui.menu)
 
 When adding a user to one or more roles, this user will also get all the ACL rights defined within his role(s).
