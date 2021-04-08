@@ -165,13 +165,6 @@ class ResUsers(models.Model):
                 res["arch"] = etree.tostring(view, encoding="unicode")
         return res
 
-    def _get_role_policy_group_keep_ids(self):
-        group_user = self.env.ref("base.group_user")
-        keep_ids = [
-            self.env.ref(x).id for x in self._role_policy_untouchable_groups()
-        ] + [group_user.id]
-        return keep_ids
-
     def _role_policy_remove_no_role_groups(self):
         keep_ids = self._get_role_policy_group_keep_ids()
         ctx = dict(self.env.context, role_policy_bypass_write=True)

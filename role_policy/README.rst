@@ -41,12 +41,20 @@ The standard Odoo approach is to give users access to all menu items and action 
 This approach is changed by this module.
 Every menu item and action binding must be added explicitely to a role in order to be available for the user.
 
+All standard groups are removed from the menus and actions except the 'untouchable groups'.
+These are defaulted to:
+
+- base.group_no_one
+- base.group_erp_manager
+- base.group_system
+- base.group_portal
+- base.group_public
+
 |
 
 Default access rights on views
 ------------------------------
 
-All standard groups are removed from the views.
 In the current version of this module view access is as a consequence secured by a combination of
 
 - view model ACL
@@ -61,15 +69,14 @@ The web modifier rules must be used in order to hide view elements.
 Default access rights on fields
 -------------------------------
 
-All standard groups are removed from the fields except
+All standard groups are removed from the fields except the 'untouchable groups'.
+These are defaulted to:
 
 - base.group_no_one
 - base.group_erp_manager
 - base.group_system
 - base.group_portal
 - base.group_public
-
-A removal of also these groups is currently under investigation.
 
 |
 

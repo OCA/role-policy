@@ -2,6 +2,24 @@
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
 
+def filter_odoo_x2many_commands(commands, keep_ids):
+    """
+    Returns x2many commands preserving only 'keep_ids'.
+    """
+    result = []
+    for command in commands:
+        if command[0] in (1, 2, 3, 4):
+            if command[1] in keep_ids:
+                result.append(command)
+        elif command[0] == 6:
+            target_ids = [x for x in command[2] if x in keep_ids]
+            if target_ids:
+                result.append((6, 0, target_ids))
+        else:
+            result.append(command)
+    return result
+
+
 def diff_to_odoo_x2many_commands(current_ids, target_ids):
     """
     Returns x2x commands resulting in diff between current and target.
