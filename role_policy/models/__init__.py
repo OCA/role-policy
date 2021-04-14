@@ -1,4 +1,5 @@
 from . import base
+from . import role_policy_menu_action_common
 from . import ir_actions
 from . import ir_http
 from . import ir_model_access
