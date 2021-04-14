@@ -104,7 +104,7 @@ class ResUsers(models.Model):
         if config.get("test_enable"):
             return super().write(vals)
 
-        if vals.get("enabled_roles"):
+        if vals.get("enabled_role_ids"):
             self.clear_caches()
         vals = self._remove_reified_groups(vals)
         if not any(
