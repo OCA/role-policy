@@ -25,6 +25,13 @@ class BaseModel(models.AbstractModel):
             "base.group_public",
         ]
 
+    def _get_role_policy_group_keep_ids(self):
+        group_user = self.env.ref("base.group_user")
+        keep_ids = [
+            self.env.ref(x).id for x in self._role_policy_untouchable_groups()
+        ] + [group_user.id]
+        return keep_ids
+
     @api.model
     def user_has_groups(self, groups):
         """

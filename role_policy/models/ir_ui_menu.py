@@ -10,7 +10,8 @@ _logger = logging.getLogger(__name__)
 
 
 class IrUiMenu(models.Model):
-    _inherit = "ir.ui.menu"
+    _name = "ir.ui.menu"
+    _inherit = ["ir.ui.menu", "role.policy.menu.action.common"]
 
     role_ids = fields.Many2many(
         comodel_name="res.role",
@@ -20,30 +21,11 @@ class IrUiMenu(models.Model):
         string="Roles",
     )
 
-    @api.model_create_multi
-    def create(self, vals_list):
-        for vals in vals_list:
-            if not self.env.context.get("role_policy_init") and "groups_id" in vals:
-                del vals["groups_id"]
-            if "role_ids" in vals:
-                roles = self.env["res.role"].browse(vals["role_ids"][0][2])
-                vals["groups_id"] = [(6, 0, [x.id for x in roles.mapped("group_id")])]
-        return super().create(vals_list)
-
-    def write(self, vals):
-        if not self.env.context.get("role_policy_init") and "groups_id" in vals:
-            del vals["groups_id"]
-        res = super().write(vals)
-        if "role_ids" in vals:
-            for menu in self:
-                menu.groups_id = menu.role_ids.mapped("group_id")
-        return res
-
     @api.model
     @tools.ormcache("frozenset(self.env.user.groups_id.ids)", "debug")
     def _visible_menu_ids(self, debug=False):
         """
-        Hide all menus without the role_group(s) or the user.
+        Hide all menus without the role_group(s) of the user.
         """
         if self.env.user.exclude_from_role_policy or config.get("test_enable"):
             visible_ids = self._visible_menu_ids_user_admin(debug=debug)
@@ -51,6 +33,8 @@ class IrUiMenu(models.Model):
             visible_ids = super()._visible_menu_ids(debug=debug)
             user_roles = self.env.user.enabled_role_ids or self.env.user.role_ids
             user_groups = user_roles.mapped("group_id")
+            for group in self._role_policy_untouchable_groups():
+                user_groups += self.env.ref(group)
             menus = self.browse()
             for menu in self.browse(visible_ids):
                 for group in menu.groups_id:

@@ -1,4 +1,4 @@
-# Copyright 2020 Noviat
+# Copyright 2020-2021 Noviat
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
 import logging
@@ -10,7 +10,8 @@ _logger = logging.getLogger(__name__)
 
 
 class IrActionsActions(models.Model):
-    _inherit = "ir.actions.actions"
+    _name = "ir.actions.actions"
+    _inherit = ["ir.actions.actions", "role.policy.menu.action.common"]
 
     def __getattribute__(self, item):
         """
@@ -21,38 +22,21 @@ class IrActionsActions(models.Model):
             res = res.filtered(lambda r: not r.role)
         return res
 
-    @api.model_create_multi
-    def create(self, vals_list):
-        for vals in vals_list:
-            if not self.env.context.get("role_policy_init") and "groups_id" in vals:
-                del vals["groups_id"]
-            if "role_ids" in vals:
-                roles = self.env["res.role"].browse(vals["role_ids"][0][2])
-                vals["groups_id"] = [(6, 0, [x.id for x in roles.mapped("group_id")])]
-        return super().create(vals_list)
-
-    def write(self, vals):
-        if not self.env.context.get("role_policy_init") and "groups_id" in vals:
-            del vals["groups_id"]
-        res = super().write(vals)
-        if "role_ids" in vals:
-            for action in self:
-                action.groups_id = action.role_ids.mapped("group_id")
-        return res
-
     @api.model
     def get_bindings(self, model_name):
         res = super().get_bindings(model_name)
         if not self.env.user.exclude_from_role_policy:
             user_roles = self.env.user.enabled_role_ids or self.env.user.role_ids
             user_groups = user_roles.mapped("group_id")
+            for group in self._role_policy_untouchable_groups():
+                user_groups += self.env.ref(group)
             res_roles = defaultdict(list)
             for k in res:
                 res_roles[k] = []
                 for v in res[k]:
                     if v.get("groups_id"):
                         for group_id in v["groups_id"]:
-                            if group_id in user_groups.ids:
+                            if group_id in user_groups.ids and v not in res_roles[k]:
                                 res_roles[k].append(v)
                                 continue
             return res_roles
