@@ -207,6 +207,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:role_policy.field_res_role__display_name
 #: model:ir.model.fields,field_description:role_policy.field_res_role_acl__display_name
 #: model:ir.model.fields,field_description:role_policy.field_role_policy_import__display_name
+#: model:ir.model.fields,field_description:role_policy.field_role_policy_menu_action_common__display_name
 #: model:ir.model.fields,field_description:role_policy.field_security_policy_tag__display_name
 #: model:ir.model.fields,field_description:role_policy.field_view_model_operation__display_name
 #: model:ir.model.fields,field_description:role_policy.field_view_modifier_rule__display_name
@@ -365,6 +366,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:role_policy.field_res_role__id
 #: model:ir.model.fields,field_description:role_policy.field_res_role_acl__id
 #: model:ir.model.fields,field_description:role_policy.field_role_policy_import__id
+#: model:ir.model.fields,field_description:role_policy.field_role_policy_menu_action_common__id
 #: model:ir.model.fields,field_description:role_policy.field_security_policy_tag__id
 #: model:ir.model.fields,field_description:role_policy.field_view_model_operation__id
 #: model:ir.model.fields,field_description:role_policy.field_view_modifier_rule__id
@@ -515,6 +517,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:role_policy.field_res_role____last_update
 #: model:ir.model.fields,field_description:role_policy.field_res_role_acl____last_update
 #: model:ir.model.fields,field_description:role_policy.field_role_policy_import____last_update
+#: model:ir.model.fields,field_description:role_policy.field_role_policy_menu_action_common____last_update
 #: model:ir.model.fields,field_description:role_policy.field_security_policy_tag____last_update
 #: model:ir.model.fields,field_description:role_policy.field_view_model_operation____last_update
 #: model:ir.model.fields,field_description:role_policy.field_view_modifier_rule____last_update
@@ -778,6 +781,11 @@ msgstr ""
 #. module: role_policy
 #: model_terms:ir.ui.view,arch_db:role_policy.view_groups_search
 msgid "Role Groups"
+msgstr ""
+
+#. module: role_policy
+#: model:ir.model,name:role_policy.model_role_policy_menu_action_common
+msgid "Role Policy - common code for ir.ui.menu and ir.actions.actions"
 msgstr ""
 
 #. module: role_policy
