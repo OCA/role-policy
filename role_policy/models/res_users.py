@@ -108,8 +108,6 @@ class ResUsers(models.Model):
         if config.get("test_enable"):
             return super().write(vals)
 
-        if vals.get("role_ids") or vals.get("enabled_role_ids"):
-            self.clear_caches()
         vals = self._remove_reified_groups(vals)
         if not any(
             [vals.get(x) for x in ("groups_id", "role_ids", "enabled_role_ids")]
@@ -235,3 +233,4 @@ class ResUsers(models.Model):
 
         if group_updates:
             super(ResUsersBase, self.sudo()).write({"groups_id": group_updates})
+            self.clear_caches()
