@@ -1,6 +1,8 @@
 # Copyright 2020-2021 Noviat
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
+import logging
+
 from lxml import etree
 
 from odoo import api, fields, models
@@ -9,6 +11,8 @@ from odoo.tools import config
 from odoo.addons.base.models.res_users import Users as ResUsersBase
 
 from .helpers import diff_to_odoo_x2many_commands, play_odoo_x2x_commands_on_ids
+
+_logger = logging.getLogger(__name__)
 
 
 class ResUsers(models.Model):
@@ -104,8 +108,6 @@ class ResUsers(models.Model):
         if config.get("test_enable"):
             return super().write(vals)
 
-        if vals.get("enabled_role_ids"):
-            self.clear_caches()
         vals = self._remove_reified_groups(vals)
         if not any(
             [vals.get(x) for x in ("groups_id", "role_ids", "enabled_role_ids")]
@@ -184,40 +186,51 @@ class ResUsers(models.Model):
         remove role ACL groups when removing/disabling roles
         """
         self.ensure_one()
+        group_updates = vals.get("groups_id")
+        vals.pop("groups_id", None)
+        role_updates = vals.get("role_ids", [])
+        enabled_role_updates = vals.get("enabled_role_ids", [])
         keep_gids = self._get_role_policy_group_keep_ids()
 
         # remove no role groups
         target_gids = set(self.groups_id.ids)
-        if "groups_id" in vals:
-            target_gids = play_odoo_x2x_commands_on_ids(target_gids, vals["groups_id"])
-            del vals["groups_id"]
+        if group_updates:
+            target_gids = play_odoo_x2x_commands_on_ids(target_gids, group_updates)
         target_gids = {x for x in target_gids if x in keep_gids}
 
-        # remove role ACL groups when removing/disabling roles
-        target_rids = set()
-        if vals.get("enabled_role_ids"):
-            target_rids = play_odoo_x2x_commands_on_ids(
-                target_rids, vals["enabled_role_ids"]
+        # remove enabled roles that are no longer in roles
+        current_rids = new_rids = set(self.role_ids.ids)
+        current_enabled_rids = new_enabled_rids = set(self.enabled_role_ids.ids)
+        if role_updates:
+            new_rids = play_odoo_x2x_commands_on_ids(current_rids, role_updates)
+        if enabled_role_updates:
+            new_enabled_rids = play_odoo_x2x_commands_on_ids(
+                current_enabled_rids, enabled_role_updates
             )
-        if not target_rids:
-            if vals.get("role_ids"):
-                target_rids = play_odoo_x2x_commands_on_ids(
-                    target_rids, vals["role_ids"]
-                )
-            else:
-                target_rids = set(self.role_ids.ids)
+        new_enabled_rids &= new_rids
+
+        # remove role ACL groups when removing/disabling roles
+        target_rids = new_enabled_rids or new_rids
         if target_rids:
             enabled_roles = self.env["res.role"].browse(target_rids)
             enabled_role_groups = enabled_roles.mapped("group_id")
             enabled_role_groups |= enabled_role_groups.mapped("implied_ids")
             target_gids |= set(enabled_role_groups.ids)
+        group_updates = diff_to_odoo_x2many_commands(self.groups_id.ids, target_gids)
 
-        groups_updates = diff_to_odoo_x2many_commands(self.groups_id.ids, target_gids)
-
+        vals["role_ids"] = diff_to_odoo_x2many_commands(self.role_ids.ids, new_rids)
+        vals["enabled_role_ids"] = diff_to_odoo_x2many_commands(
+            self.enabled_role_ids.ids, new_enabled_rids
+        )
+        # empty 'commands' on x2M fields (e.g. vals["role_ids"] = []) should not
+        # have any effect but the ORM seems to handle these as a regular write
+        # hence we hit an ACL error on fields that do not belong to the
+        # SELF_WRITEABLE_FIELDS.
+        for fld in ("role_ids", "enabled_role_ids"):
+            if vals.get(fld) == []:
+                del vals[fld]
         super().write(vals)
 
-        if groups_updates:
-            super(ResUsersBase, self.sudo()).write({"groups_id": groups_updates})
-        if "role_ids" in vals:
-            ctx = dict(self.env.context, role_policy_bypass_write=True)
-            self.with_context(ctx)._onchange_role_ids()
+        if group_updates:
+            super(ResUsersBase, self.sudo()).write({"groups_id": group_updates})
+            self.clear_caches()

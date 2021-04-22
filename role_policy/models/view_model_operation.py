@@ -101,24 +101,28 @@ class ViewModelOperation(models.Model):
         if model:
             dom.append(("model", "in", (model, "default")))
         all_rules = self.search(dom)
-        all_rules = all_rules.sorted(key=lambda r: (r.model, r.operation, r.priority))
-        if all_rules:
-            for i, rule in enumerate(all_rules):
-                if i == 0:
-                    rules = rule
-                    previous_signature = [getattr(rule, f) for f in signature_fields]
-                else:
-                    signature = [getattr(rule, f) for f in signature_fields]
-                    if signature != previous_signature:
-                        rules += rule
-                    previous_signature = signature
-            if model:
-                default_rules = rules.filtered(lambda r: r.model == "default")
-                model_rules = rules - default_rules
-                model_rules_operations = [r.operation for r in model_rules]
-                rules -= default_rules.filtered(
-                    lambda r: r.operation in model_rules_operations
-                )
+        rules_dict = {}
+        for rule in all_rules:
+            key = "-".join([str(getattr(rule, f)) for f in signature_fields])
+            if key not in rules_dict:
+                rules_dict[key] = rule
+            else:
+                rules_dict[key] += rule
+        # Keep only rules with highest priority.
+        # No rule for one of the user roles is considered highest priority
+        roles_nbr = len(user_roles)
+        for key in rules_dict:
+            key_rules = rules_dict[key]
+            if len(key_rules) != roles_nbr:
+                continue
+            rules += key_rules.sorted(lambda r: r.priority)[0]
+        if model:
+            default_rules = rules.filtered(lambda r: r.model == "default")
+            model_rules = rules - default_rules
+            model_rules_operations = [r.operation for r in model_rules]
+            rules -= default_rules.filtered(
+                lambda r: r.operation in model_rules_operations
+            )
         return rules
 
     def _rule_signature_fields(self):

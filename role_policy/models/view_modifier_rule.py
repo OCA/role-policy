@@ -243,24 +243,21 @@ class ViewModifierRule(models.Model):
         if view_type:
             dom += ["|", ("view_type", "=", view_type), ("view_type", "=", False)]
         all_rules = self.search(dom)
-        all_rules = all_rules.sorted(
-            key=lambda r: (
-                r.element or "",
-                r.view_id.id or 0,
-                r.view_type or "0",
-                r.priority,
-            )
-        )
-        if all_rules:
-            for i, rule in enumerate(all_rules):
-                if i == 0:
-                    rules = rule
-                    previous_signature = [getattr(rule, f) for f in signature_fields]
-                else:
-                    signature = [getattr(rule, f) for f in signature_fields]
-                    if signature != previous_signature:
-                        rules += rule
-                    previous_signature = signature
+        rules_dict = {}
+        for rule in all_rules:
+            key = "-".join([str(getattr(rule, f)) for f in signature_fields])
+            if key not in rules_dict:
+                rules_dict[key] = rule
+            else:
+                rules_dict[key] += rule
+        # Keep only rules with highest priority.
+        # No rule for one of the user roles is considered highest priority
+        roles_nbr = len(user_roles)
+        for key in rules_dict:
+            key_rules = rules_dict[key]
+            if len(key_rules) != roles_nbr:
+                continue
+            rules += key_rules.sorted(lambda r: r.priority)[0]
         return rules
 
     def _rule_signature_fields(self):
