@@ -15,6 +15,7 @@ class RolePolicyExportXls(models.AbstractModel):
             "acl",
             "menu",
             "act_window",
+            "act_client",
             "act_server",
             "act_report",
             "modifier_rule",
@@ -221,6 +222,61 @@ class RolePolicyExportXls(models.AbstractModel):
                 ws_params,
                 col_specs_section="data",
                 render_space={"act_window": rec, "xml_id": xml_id},
+                default_format=self.format_tcell_left,
+            )
+
+    def _get_ws_params_act_client(self, data, role):
+
+        act_client_template = {
+            "name": {
+                "header": {"value": "Client Action"},
+                "data": {"value": self._render("act_client.name")},
+                "width": 50,
+            },
+            "act_window_id": {
+                "header": {"value": "External Identifier"},
+                "data": {"value": self._render("xml_id")},
+                "width": 50,
+            },
+        }
+
+        params = {
+            "ws_name": "Client Actions",
+            "generate_ws_method": "_export_act_client",
+            "title": "Client Actions",
+            "wanted_list": [k for k in act_client_template],
+            "col_specs": act_client_template,
+        }
+
+        return params
+
+    def _export_act_client(self, workbook, ws, ws_params, data, role):
+
+        ws.set_portrait()
+        ws.fit_to_pages(1, 0)
+        ws.set_header(self.xls_headers["standard"])
+        ws.set_footer(self.xls_footers["standard"])
+
+        self._set_column_width(ws, ws_params)
+
+        row_pos = 0
+        row_pos = self._write_line(
+            ws,
+            row_pos,
+            ws_params,
+            col_specs_section="header",
+            default_format=self.format_theader_yellow_left,
+        )
+        ws.freeze_panes(row_pos, 0)
+
+        for rec in role.act_client_ids:
+            [xml_id] = rec.get_external_id().values()
+            row_pos = self._write_line(
+                ws,
+                row_pos,
+                ws_params,
+                col_specs_section="data",
+                render_space={"act_client": rec, "xml_id": xml_id},
                 default_format=self.format_tcell_left,
             )
 

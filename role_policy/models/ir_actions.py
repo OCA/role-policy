@@ -28,13 +28,17 @@ class IrActionsActions(models.Model):
         if not self.env.user.exclude_from_role_policy:
             user_roles = self.env.user.enabled_role_ids or self.env.user.role_ids
             user_groups = user_roles.mapped("group_id")
+            user_role_ids = set(user_roles.ids)
             for group in self._role_policy_untouchable_groups():
                 user_groups += self.env.ref(group)
             res_roles = defaultdict(list)
             for k in res:
                 res_roles[k] = []
                 for v in res[k]:
-                    if v.get("groups_id"):
+                    if v["type"] == "ir.actions.client":
+                        if set(v["role_ids"]) & user_role_ids:
+                            res_roles[k].append(v)
+                    elif v.get("groups_id"):
                         for group_id in v["groups_id"]:
                             if group_id in user_groups.ids and v not in res_roles[k]:
                                 res_roles[k].append(v)
@@ -50,6 +54,18 @@ class IrActionsActWindow(models.Model):
         comodel_name="res.role",
         relation="res_role_act_window_rel",
         column1="act_window_id",
+        column2="role_id",
+        string="Roles",
+    )
+
+
+class IrActionsActClient(models.Model):
+    _inherit = "ir.actions.client"
+
+    role_ids = fields.Many2many(
+        comodel_name="res.role",
+        relation="res_role_client_rel",
+        column1="act_client_id",
         column2="role_id",
         string="Roles",
     )

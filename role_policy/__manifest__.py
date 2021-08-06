@@ -3,7 +3,7 @@
 
 {
     "name": "Role Policy",
-    "version": "13.0.0.4.6",
+    "version": "13.0.0.5.0",
     "license": "AGPL-3",
     "author": "Noviat, Odoo Community Association (OCA)",
     "website": "http://www.noviat.com",
@@ -16,7 +16,7 @@
         "security/ir.model.access.csv",
         "security/role_policy_security.xml",
         "views/assets_backend.xml",
-        "views/ir_action_views.xml",
+        "views/ir_actions_views.xml",
         "views/ir_ui_menu_views.xml",
         "views/res_groups_views.xml",
         "views/res_role_views.xml",
