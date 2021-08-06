@@ -10,6 +10,7 @@
     "category": "Tools",
     "depends": ["mail", "report_xlsx_helper"],
     "external_dependencies": {"python": ["lxml", "xlrd"]},
+    "maintainers": ["luc-demeyer"],
     "post_init_hook": "post_init_hook",
     "data": [
         "data/ir_module_category_data.xml",
