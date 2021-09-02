@@ -49,6 +49,7 @@ class RolePolicyImport(models.TransientModel):
             ("acl", "Role ACLs"),
             ("menu", "Menu Items"),
             ("act_window", "Window Actions"),
+            ("act_client", "Client Actions"),
             ("act_server", "Server Actions"),
             ("act_report", "Report Actions"),
             ("modifier_rule", "View Modifier Rules"),
@@ -225,6 +226,10 @@ class RolePolicyImport(models.TransientModel):
 
     def _read_act_window(self, sheet, role):
         header = ["Window Action", "External Identifier"]
+        return self._read_m2m_sheet(sheet, role, header)
+
+    def _read_act_client(self, sheet, role):
+        header = ["Client Action", "External Identifier"]
         return self._read_m2m_sheet(sheet, role, header)
 
     def _read_act_server(self, sheet, role):

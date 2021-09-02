@@ -41,4 +41,11 @@
         action="view_model_operation_action"
         sequence="5"
     />
+    <menuitem
+        id="ir_actions_client_menu"
+        name="Client Actions"
+        parent="base.next_id_6"
+        action="ir_actions_client_action"
+        sequence="10"
+    />
 </odoo>

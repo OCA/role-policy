@@ -50,6 +50,13 @@ class ResRole(models.Model):
         column2="act_window_id",
         string="Window Actions",
     )
+    act_client_ids = fields.Many2many(
+        comodel_name="ir.actions.client",
+        relation="res_role_client_rel",
+        column1="role_id",
+        column2="act_client_id",
+        string="Client Actions",
+    )
     act_server_ids = fields.Many2many(
         comodel_name="ir.actions.server",
         relation="res_role_act_server_rel",
