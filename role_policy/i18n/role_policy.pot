@@ -42,6 +42,11 @@ msgid "Access Groups"
 msgstr ""
 
 #. module: role_policy
+#: model_terms:ir.ui.view,arch_db:role_policy.ir_actions_client_view_search
+msgid "Action"
+msgstr ""
+
+#. module: role_policy
 #: model:ir.model.fields,field_description:role_policy.field_res_role__message_needaction
 msgid "Action Needed"
 msgstr ""
@@ -106,6 +111,26 @@ msgstr ""
 #. module: role_policy
 #: model_terms:ir.ui.view,arch_db:role_policy.role_policy_import_view_form
 msgid "Cancel"
+msgstr ""
+
+#. module: role_policy
+#: model:ir.model,name:role_policy.model_ir_actions_client
+#: model_terms:ir.ui.view,arch_db:role_policy.ir_actions_client_view_form
+msgid "Client Action"
+msgstr ""
+
+#. module: role_policy
+#: model_terms:ir.ui.view,arch_db:role_policy.res_role_view_form
+msgid "Client Action Bindings"
+msgstr ""
+
+#. module: role_policy
+#: model:ir.actions.act_window,name:role_policy.ir_actions_client_action
+#: model:ir.model.fields,field_description:role_policy.field_res_role__act_client_ids
+#: model:ir.ui.menu,name:role_policy.ir_actions_client_menu
+#: model_terms:ir.ui.view,arch_db:role_policy.ir_actions_client_view_search
+#: model_terms:ir.ui.view,arch_db:role_policy.ir_actions_client_view_tree
+msgid "Client Actions"
 msgstr ""
 
 #. module: role_policy
@@ -358,6 +383,11 @@ msgstr ""
 #. module: role_policy
 #: model:ir.model,name:role_policy.model_ir_http
 msgid "HTTP Routing"
+msgstr ""
+
+#. module: role_policy
+#: model_terms:ir.ui.view,arch_db:role_policy.ir_actions_client_view_form
+msgid "Help"
 msgstr ""
 
 #. module: role_policy
@@ -814,6 +844,7 @@ msgstr ""
 #. module: role_policy
 #: model:ir.actions.act_window,name:role_policy.res_role_action
 #: model:ir.model.fields,field_description:role_policy.field_ir_actions_act_window__role_ids
+#: model:ir.model.fields,field_description:role_policy.field_ir_actions_client__role_ids
 #: model:ir.model.fields,field_description:role_policy.field_ir_actions_report__role_ids
 #: model:ir.model.fields,field_description:role_policy.field_ir_actions_server__role_ids
 #: model:ir.model.fields,field_description:role_policy.field_ir_cron__role_ids
@@ -823,6 +854,7 @@ msgstr ""
 #: model:ir.ui.menu,name:role_policy.res_role_menu_main
 #: model_terms:ir.ui.view,arch_db:role_policy.act_report_xml_view
 #: model_terms:ir.ui.view,arch_db:role_policy.edit_menu_access
+#: model_terms:ir.ui.view,arch_db:role_policy.ir_actions_client_view_form
 #: model_terms:ir.ui.view,arch_db:role_policy.res_role_view_tree
 #: model_terms:ir.ui.view,arch_db:role_policy.view_server_action_form
 #: model_terms:ir.ui.view,arch_db:role_policy.view_users_form
