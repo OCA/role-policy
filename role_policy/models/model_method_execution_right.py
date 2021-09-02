@@ -57,7 +57,11 @@ class ModelMethodExecutionRight(models.Model):
 
     @api.model
     def check_right(self, name, raise_exception=True):
-        if self.env.user.exclude_from_role_policy or config.get("test_enable"):
+        if (
+            self.env.su
+            or self.env.user.exclude_from_role_policy
+            or config.get("test_enable")
+        ):
             return True
         user_roles = self.env.user.enabled_role_ids or self.env.user.role_ids
         model_methods = user_roles.mapped("model_method_ids").filtered(
