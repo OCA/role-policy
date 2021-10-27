@@ -101,7 +101,11 @@
                         </page>
                         <page string="Client Action Bindings" id="act_client_ids">
                             <field name="act_client_ids">
-                                <tree default_order="model_name, name, xml_id" create="true" delete="true">
+                                <tree
+                                    default_order="model_name, name, xml_id"
+                                    create="true"
+                                    delete="true"
+                                >
                                     <field name="name" />
                                     <field name="xml_id" />
                                 </tree>
