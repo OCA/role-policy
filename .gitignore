@@ -55,3 +55,6 @@ docs/_build/
 # Backup files
 *~
 *.swp
+
+# Mac
+.DS_Store
