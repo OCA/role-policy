@@ -173,13 +173,8 @@ In order to remove entries, you should put 'X' in the column with 'Delete Entry'
 
 Any rows starting with '#' will be ignored during the import.
 
-Demo Database
-~~~~~~~~~~~~~
-
-You can install the *role_policy_demo* module in order to get a better feeling on how this module works.
-
-Known Issues
-~~~~~~~~~~~~
+Standard Groups Removal
+~~~~~~~~~~~~~~~~~~~~~~~
 
 The removal of the standard groups may result in unexpected behaviour since there are several modules
 that use the standard groups hardcoded in python.
@@ -203,3 +198,8 @@ where the methods with such a coding practice have been adapted. This way, the s
 without depending heavily on Odoo development skills.
 
 Cf. role_policy_sale as an example.
+
+Demo Database
+~~~~~~~~~~~~~
+
+You can install the *role_policy_demo* module in order to get a better feeling on how this module works.
