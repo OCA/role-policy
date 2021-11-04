@@ -1,7 +1,3 @@
-.. image:: https://img.shields.io/badge/license-AGPL--3-blue.png
-   :target: https://www.gnu.org/licenses/agpl
-   :alt: License: AGPL-3
-
 This module replaces the standard Odoo Security Groups by Roles.
 
 When installing the module, all security groups are removed from users, actions and menu items.

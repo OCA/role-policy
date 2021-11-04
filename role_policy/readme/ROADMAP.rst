@@ -1,7 +1,3 @@
-=======
-Roadmap
-=======
-
 - Rules syntax checker button
 - Clean-up/adapt standard user & groups screens for Roles
 - Generate clear *role* error message when hitting e.g. ACL error
