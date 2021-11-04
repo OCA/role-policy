@@ -1,0 +1,11 @@
+- Rules syntax checker button
+- Clean-up/adapt standard user & groups screens for Roles
+- Generate clear *role* error message when hitting e.g. ACL error
+- Role Policy Traceability
+- Unit Tests
+- Record Rules
+- Firefighter role
+- Role-based Home Action
+- Quid *Settings* menu & useability groups?
+- Interface with web_m2x_options OCA module
+- Provide templates for standard roles, e.g. sales, finance, stock, ...
