@@ -8,4 +8,8 @@ Roadmap
 - Role Policy Traceability
 - Unit Tests
 - Record Rules
-- Add support for the *Settings* menus (res.config.settings screens)
+- Firefighter role
+- Role-based Home Action
+- Quid *Settings* menu & useability groups?
+- Interface with web_m2x_options OCA module
+- Provide templates for standard roles, e.g. sales, finance, stock, ...

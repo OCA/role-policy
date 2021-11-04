@@ -1,1 +1,0 @@
-Install the role_policy_demo to learn more about the module.
