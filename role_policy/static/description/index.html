@@ -508,12 +508,8 @@ In order to do so, you should adapt the default function on the res.role, compan
 <p>In order to remove entries, you should put ‘X’ in the column with ‘Delete Entry’ as column header.</p>
 <p>Any rows starting with ‘#’ will be ignored during the import.</p>
 </div>
-<div class="section" id="demo-database">
-<h1>Demo Database</h1>
-<p>You can install the <em>role_policy_demo</em> module in order to get a better feeling on how this module works.</p>
-</div>
-<div class="section" id="known-issues">
-<h1>Known Issues</h1>
+<div class="section" id="standard-groups-removal">
+<h1>Standard Groups Removal</h1>
 <p>The removal of the standard groups may result in unexpected behaviour since there are several modules
 that use the standard groups hardcoded in python.</p>
 <p>Example= in the Sale module we find the following code block:</p>
@@ -531,6 +527,10 @@ Only an experienced Odoo developer is able to find out and fix issues caused by 
 where the methods with such a coding practice have been adapted. This way, the security officer can configure the roles
 without depending heavily on Odoo development skills.</p>
 <p>Cf. role_policy_sale as an example.</p>
+</div>
+<div class="section" id="demo-database">
+<h1>Demo Database</h1>
+<p>You can install the <em>role_policy_demo</em> module in order to get a better feeling on how this module works.</p>
 <p><strong>Table of contents</strong></p>
 <div class="contents local topic" id="contents">
 <ul class="simple">
