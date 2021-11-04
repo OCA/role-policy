@@ -110,7 +110,7 @@ Adding extra methods requires only a few lines of code.
 It consists of extending a selection list with the Model Method,
 adding a role_policy lookup to the method and pass the *role_policy_has_groups_ok* context.
 
-|e.g. the module *role_policy_account* adds the account.move,post method to this list|
+e.g. the module *role_policy_account* adds the account.move,post method to this list
 
 .. code-block::
 
@@ -188,7 +188,7 @@ Known Issues
 The removal of the standard groups may result in unexpected behaviour since there are several modules
 that use the standard groups hardcoded in python.
 
-|Example= in the Sale module we find the following code block:|
+Example= in the Sale module we find the following code block:
 
 .. code-block::
 
