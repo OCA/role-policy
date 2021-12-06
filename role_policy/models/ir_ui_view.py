@@ -29,6 +29,8 @@ class IrUiView(models.Model):
 
     def read_combined(self, fields=None):
         res = super().read_combined(fields=fields)
+        if self.env.user.exclude_from_role_policy:
+            return res
         res["arch"] = self._apply_view_type_attribute_rules(res["arch"])
         archs = [(res["arch"], self.id)]
         archs = self._apply_view_modifier_remove_rules(self.model, archs)

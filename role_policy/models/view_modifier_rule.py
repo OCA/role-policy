@@ -230,7 +230,7 @@ class ViewModifierRule(models.Model):
 
     def _get_rules(self, model, view_id, view_type=False, remove=False):
         rules = self.browse()
-        if self.env.user.exclude_from_role_policy or config.get("test_enable"):
+        if config.get("test_enable"):
             return rules
         signature_fields = self._rule_signature_fields()
         user_roles = self.env.user.enabled_role_ids or self.env.user.role_ids
