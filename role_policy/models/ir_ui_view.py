@@ -1,4 +1,4 @@
-# Copyright 2020 Noviat
+# Copyright 2020-2021 Noviat
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
 import logging
@@ -185,7 +185,8 @@ class IrUiView(models.Model):
         untouchable_groups = self._role_policy_untouchable_groups()
         if "groups=" in source:
             s0, s1 = source.split("groups=", 1)
-            s1_split = s1.split('"', 2)
+            quote_char = s1[0]
+            s1_split = s1.split(quote_char, 2)
             groups = s1_split[1].split(",")
             untouchables = [x for x in groups if x in untouchable_groups]
             if untouchables:
