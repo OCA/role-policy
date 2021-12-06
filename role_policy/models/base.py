@@ -19,6 +19,7 @@ class BaseModel(models.AbstractModel):
         """
         return [
             "base.group_no_one",
+            "base.group_user",
             "base.group_erp_manager",
             "base.group_system",
             "base.group_portal",
