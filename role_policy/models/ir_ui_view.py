@@ -31,6 +31,7 @@ class IrUiView(models.Model):
         res = super().read_combined(fields=fields)
         if self.env.user.exclude_from_role_policy:
             return res
+        res["arch"] = self._remove_xml_comments(res["arch"])
         res["arch"] = self._apply_view_type_attribute_rules(res["arch"])
         archs = [(res["arch"], self.id)]
         archs = self._apply_view_modifier_remove_rules(self.model, archs)
@@ -48,6 +49,14 @@ class IrUiView(models.Model):
         archs = self._apply_view_modifier_remove_rules(model, archs)
         archs = self._apply_view_modifier_rules(model, archs)
         return archs
+
+    def _remove_xml_comments(self, arch):
+        if "<!--" in arch:
+            s0, s1 = arch.split("<!--", 1)
+            s2 = s1.split("-->", 1)[1]
+            return s0 + s2
+        else:
+            return arch
 
     def _apply_view_type_attribute_rules(self, arch):
         vta_rules = self.env["view.type.attribute"]._get_rules(self.id)
