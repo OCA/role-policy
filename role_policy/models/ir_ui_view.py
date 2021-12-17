@@ -1,4 +1,4 @@
-# Copyright 2020 Noviat
+# Copyright 2020-2021 Noviat
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
 import logging
@@ -29,8 +29,9 @@ class IrUiView(models.Model):
 
     def read_combined(self, fields=None):
         res = super().read_combined(fields=fields)
-        if not self.model:
+        if self.env.user.exclude_from_role_policy:
             return res
+        res["arch"] = self._remove_xml_comments(res["arch"])
         res["arch"] = self._apply_view_type_attribute_rules(res["arch"])
         archs = [(res["arch"], self.id)]
         archs = self._apply_view_modifier_remove_rules(self.model, archs)
@@ -48,6 +49,14 @@ class IrUiView(models.Model):
         archs = self._apply_view_modifier_remove_rules(model, archs)
         archs = self._apply_view_modifier_rules(model, archs)
         return archs
+
+    def _remove_xml_comments(self, arch):
+        if "<!--" in arch:
+            s0, s1 = arch.split("<!--", 1)
+            s2 = s1.split("-->", 1)[1]
+            return s0 + s2
+        else:
+            return arch
 
     def _apply_view_type_attribute_rules(self, arch):
         vta_rules = self.env["view.type.attribute"]._get_rules(self.id)
@@ -187,7 +196,8 @@ class IrUiView(models.Model):
         untouchable_groups = self._role_policy_untouchable_groups()
         if "groups=" in source:
             s0, s1 = source.split("groups=", 1)
-            s1_split = s1.split('"', 2)
+            quote_char = s1[0]
+            s1_split = s1.split(quote_char, 2)
             groups = s1_split[1].split(",")
             untouchables = [x for x in groups if x in untouchable_groups]
             if untouchables:
