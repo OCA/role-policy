@@ -45,14 +45,14 @@ In the current version of this module, view access is as a consequence secured b
 - menu items
 
 Also the groups inside view architecture are removed at view loading time.
-The web modifier rules must be used in order to hide view elements.
+The View Modifier Rules must be used in order to hide view elements.
 
-Web Modifier Rules
-~~~~~~~~~~~~~~~~~~
+View Modifier Rules
+~~~~~~~~~~~~~~~~~~~
 
-The biggest difference is probably the 'Web Modifier Rules' part which replaces the standard view inheritance mechanism when
+The biggest difference is probably the 'View Modifier Rules' part which replaces the standard view inheritance mechanism when
 e.g. some fields need to be hidden for certain roles.
-The Web Modifier Rules have a *priority* field which determines the winning rule in case you grant multiple roles to a single user.
+The View Modifier Rules have a *priority* field which determines the winning rule in case you grant multiple roles to a single user.
 
 Combined roles may lead to unexpected results for the end user.
 E.g. a user can have access to a button in a certain role but loose that access in a combined role.
@@ -64,10 +64,10 @@ As a consequence, unwanted view or view elements must be removed via the *remove
 
 The difference between *Invisible* and *Remove* is essential since *Invisible* implies that the user needs ACL access to the field that should not be rendered.
 
-The Web Modifier Rules also allow to set the modifiers of a certain element without specifying a view, e.g. to hide a certain field for all views on an object.
+The View Modifier Rules also allow to set the modifiers of a certain element without specifying a view, e.g. to hide a certain field for all views on an object.
 This can be further refined by applying a specific view type. The *Remove* option is not allowed without defining a view.
 
-Since complex environments may have a large number of web modifier rules, this module allows to load a large ruleset without syntax checking.
+Since complex environments may have a large number of View Modifier Rules, this module allows to load a large ruleset without syntax checking.
 Hence loading a new role from Excel may result in screen errors for the concerned users. A syntax check button will be made available in order to check the syntax with autocorrection where feasible.
 
 View Type Attribute Rules
@@ -121,8 +121,65 @@ e.g. the module *role_policy_account* adds the account.move,post method to this 
             self = self.with_context(ctx)
             return super().post()
 
-
 Methods defined in this set are available only for those roles which have added them in the *Model Methods* notebook page.
+
+Combined Roles - Role Policy Selector
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Combined roles may lead to unexpected results for the end user.
+E.g. a user can have access to a button in a certain role but loose that access in a combined role.
+
+The following rules have a priority field which determines the winning rule in case you grant multiple roles to a single user:
+
+- View Modifier Rules
+- View Type Attribute Rules
+- View Model Operation Rules
+
+whereby no rule for one of the user roles is considered highest priority.
+
+This logic makes sense in certain business scenarios but can be completely faulty for other use cases.
+In reality it's impossible to come to a maintainable set of roles and configure all possible use cases
+for combined roles.
+
+In a large organisation new roles will be added on a regular basis.
+Maintaining a consistent set of rules so that this new role can be combined with all existing roles leads to millions of
+combinations hence impossible to maintain.
+
+
+A concrete example to illustrate the winning rule logic:
+
+::
+
+  Let's assume we have three roles: Back Office Sales (BO), Sales Manager (SM), Finance Manager (FM)
+
+  Now we define the following View Modifier Rules on a Sale Order:
+
+  - partner_id readonly=1 for role BO, with priority 2 for this rule.
+  - partner_id readonly=0 for role FM, priority 1.
+  - no partner_id rule for role SM
+
+  Now the Finance Manager goes on leave and the security officer temporarily adds the FM role to a Back Office Sales employee.
+  This person will now be able to change the partner_id on a Sale Order because of the highest priority rule wins.
+
+  The SM will always be able to change the partner_id field since the standard Odoo Sale Order form allows this.
+  If the SM temporarily needs to take over BO tasks and hence gets the two roles he will still be able to
+  change the Sale Order partner_id field because no rule for one of the user roles is considered highest priority.
+
+  But if we now add the partner_id rule to the SM role with readonly=0 and standard priority 16, than we get
+  as result that the SM can update the partner_id in his SM role but looses this capability in the combined SM/BO role.
+
+
+These types of conflicts should be resolved by either the creation of a new role, hence avoiding the need for combined roles.
+
+
+In case someone needs to take over the activities of a colleague on temporarily basis, the creation of a new role is not realistic.
+
+
+For that purpose the **Role Policy Selector** should be used.
+
+Via the 'My Profile' form, the user can select his 'Enabled Roles' as a subset of the roles that he is entitled to.
+By doing so he will get access to the capabilities of the Enabled Role(s) and not the combination of all his roles.
+
 
 Admin User
 ~~~~~~~~~~
