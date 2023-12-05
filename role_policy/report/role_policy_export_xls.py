@@ -415,7 +415,7 @@ class RolePolicyExportXls(models.AbstractModel):
             },
             "view_type": {
                 "header": {"value": "View Type"},
-                "data": {"value": self._render("rule.view_id.type or ''")},
+                "data": {"value": self._render("rule.view_type or ''")},
                 "width": 10,
             },
             "element": {
