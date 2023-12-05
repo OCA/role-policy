@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <template
+        id="assets_backend"
+        name="role_poliy_hr assets"
+        inherit_id="web.assets_backend"
+    >
+        <xpath expr="." position="inside">
+            <script
+                type="text/javascript"
+                src="/role_policy_hr/static/src/js/role_policy_hr.js"
+            />
+        </xpath>
+    </template>
+</odoo>
