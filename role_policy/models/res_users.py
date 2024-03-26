@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Noviat
+# Copyright 2020-2024 Noviat
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
 import logging
@@ -135,6 +135,10 @@ class ResUsers(models.Model):
             return super()._has_group(group_ext_id)
         else:
             return True
+
+    def has_role(self, code):
+        roles = self.env.user.enabled_role_ids or self.env.user.role_ids
+        return code in roles.mapped("code")
 
     @api.model
     def fields_view_get(

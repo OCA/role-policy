@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Noviat
+# Copyright 2020-2024 Noviat
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
 import logging
@@ -37,7 +37,10 @@ class IrUiView(models.Model):
         archs = self._apply_view_modifier_remove_rules(self.model, archs)
         archs = self._apply_view_modifier_rules(self.model, archs)
         if archs:
-            arch = self._remove_security_groups(archs[0][0])
+            arch_node = etree.fromstring(archs[0][0])
+            self._remove_security_groups(arch_node)
+            self._handle_roles(arch_node)
+            arch = etree.tostring(arch_node, encoding="unicode")
         else:
             arch = self._no_access_view_arch(res)
         res["arch"] = arch
@@ -189,23 +192,30 @@ class IrUiView(models.Model):
                 source, specs_tree, inherit_id, pre_locate=pre_locate
             )
         except ValueError:
-            source = source
-        return self._remove_security_groups(source)
+            pass
+        return source
 
-    def _remove_security_groups(self, source):
+    def _remove_security_groups(self, arch_node):
         untouchable_groups = self._role_policy_untouchable_groups()
-        if "groups=" in source:
-            s0, s1 = source.split("groups=", 1)
-            quote_char = s1[0]
-            s1_split = s1.split(quote_char, 2)
-            groups = s1_split[1].split(",")
+        for node in arch_node.xpath("//*[@groups]"):
+            groups = node.attrib.pop("groups")
+            groups = groups.split(",")
             untouchables = [x for x in groups if x in untouchable_groups]
             if untouchables:
-                s0 += 'groups="{}" '.format(",".join(untouchables))
-            s2 = s1_split[2]
-            return s0 + self._remove_security_groups(s2)
-        else:
-            return source
+                node.set("groups", ",".join(untouchables))
+
+    def _handle_roles(self, arch_node):
+        """
+        Remove roles attribute when user belongs to one of the roles
+        or view element when this is not the case.
+        """
+        for node in arch_node.xpath("//*[@roles]"):
+            roles = node.attrib.pop("roles")
+            roles = roles.split(",")
+            roles = [x.strip() for x in roles]
+            if not any([self.env.user.has_role(r) for r in roles]):
+                parent = node.find("..")
+                parent.remove(node)
 
     def _no_access_view_arch(self, view_dict):
         if view_dict["type"] == "form":

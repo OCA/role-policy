@@ -45,6 +45,21 @@ In the current version of this module, view access is as a consequence secured b
 - menu items
 
 Also the groups inside view architecture are removed at view loading time.
+
+In order to compensate for the capability to add groups on view elements a new
+attribute has been added: "roles" with attritue value a list of role codes.
+
+The roles attribute works similar as the groups attribute:
+the view element will be removed if a user does not belong to one of the specified roles.
+
+|
+
+Syntax:
+
+.. code-block:: xml
+
+  <button roles="R1, R2" name="button_name" type="object" />
+
 The View Modifier Rules must be used in order to hide view elements.
 
 View Modifier Rules
