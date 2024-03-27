@@ -215,7 +215,6 @@ class ViewModifierRule(models.Model):
     @api.constrains("modifier_invisible", "modifier_readonly", "modifier_required")
     def _check_modifier(self):
         """TODO: add checks on modifier syntax"""
-        pass
 
     @api.onchange("view_id")
     def _onchange_view_id(self):

@@ -6,7 +6,7 @@
     "version": "13.0.0.7.0",
     "license": "AGPL-3",
     "author": "Noviat, Odoo Community Association (OCA)",
-    "website": "http://www.noviat.com",
+    "website": "https://github.com/OCA/role-policy",
     "category": "Tools",
     "depends": ["mail", "report_xlsx_helper"],
     "external_dependencies": {"python": ["lxml", "xlrd"]},
