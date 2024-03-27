@@ -11,6 +11,7 @@ setuptools.setup(
         'odoo13-addon-role_policy',
         'odoo13-addon-role_policy_account',
         'odoo13-addon-role_policy_demo',
+        'odoo13-addon-role_policy_hr',
         'odoo13-addon-role_policy_sale',
     ],
     classifiers=[
