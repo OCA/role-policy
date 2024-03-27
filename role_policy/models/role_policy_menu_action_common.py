@@ -24,7 +24,9 @@ class RolePolicyMenuActionCommon(models.AbstractModel):
                     del vals["groups_id"]
             if "role_ids" in vals:
                 roles = self.env["res.role"].browse(vals["role_ids"][0][2])
-                vals["groups_id"].extend([(4, x.id) for x in roles.mapped("group_id")])
+                vals.setdefault("groups_id", []).extend(
+                    [(4, x.id) for x in roles.mapped("group_id")]
+                )
         return super().create(vals_list)
 
     def write(self, vals):
