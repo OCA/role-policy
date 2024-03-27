@@ -360,7 +360,6 @@ class RolePolicyImport(models.TransientModel):
 
     def _check_view_type_attribute_vals(self, vals, line_errors):
         """ placeholder for exra checks """
-        pass
 
     def _read_model_operation(self, sheet, role):
         fields_dict = {
@@ -384,7 +383,6 @@ class RolePolicyImport(models.TransientModel):
 
     def _check_model_operation_vals(self, vals, line_errors):
         """ placeholder for exra checks """
-        pass
 
     def _read_model_method(self, sheet, role):
         fields_dict = {
@@ -400,7 +398,6 @@ class RolePolicyImport(models.TransientModel):
 
     def _check_model_method_vals(self, vals, line_errors):
         """ placeholder for exra checks """
-        pass
 
     def _read_rule_sheet(self, sheet, role, role_field, fields_dict):
 

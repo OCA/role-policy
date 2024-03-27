@@ -46,7 +46,6 @@ class ViewTypeAttribute(models.Model):
     @api.constrains("view_id", "attrib", "attrib_val")
     def _check_view_attribute(self):
         """TODO: add checks on syntax"""
-        pass
 
     def _get_rules(self, view_id):
         rules = self.browse()

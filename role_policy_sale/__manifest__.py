@@ -6,7 +6,7 @@
     "version": "13.0.1.0.0",
     "license": "AGPL-3",
     "author": "Noviat, Odoo Community Association (OCA)",
-    "website": "http://www.noviat.com",
+    "website": "https://github.com/OCA/role-policy",
     "category": "Tools",
     "depends": ["role_policy", "sale"],
     "data": [],
