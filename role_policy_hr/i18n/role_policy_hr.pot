@@ -1,5 +1,6 @@
 # Translation of Odoo Server.
 # This file contains the translation of the following modules:
+# 	* role_policy_hr
 #
 msgid ""
 msgstr ""
@@ -11,3 +12,8 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: \n"
+
+#. module: role_policy_hr
+#: model:ir.model,name:role_policy_hr.model_base
+msgid "Base"
+msgstr ""
