@@ -47,9 +47,14 @@ class ResUsers(models.Model):
         fields defined in self.SELF_{READ/WRITE}ABLE_FIELDS.
         """
         super().__init__(pool, cr)
-        # duplicate list to avoid modifying the original reference
-        type(self).SELF_WRITEABLE_FIELDS = list(self.SELF_WRITEABLE_FIELDS)
-        type(self).SELF_WRITEABLE_FIELDS.extend(["enabled_role_ids"])
+        readable_fields = ["exclude_from_role_policy", "role_ids"]
+        writable_fields = ["enabled_role_ids"]
+        type(self).SELF_READABLE_FIELDS = list(
+            set(type(self).SELF_READABLE_FIELDS + readable_fields + writable_fields)
+        )
+        type(self).SELF_WRITEABLE_FIELDS = list(
+            set(type(self).SELF_WRITEABLE_FIELDS + writable_fields)
+        )
 
     def _compute_exclude_from_role_policy(self):
         for user in self:
@@ -129,8 +134,10 @@ class ResUsers(models.Model):
 
     @api.model
     def _has_group(self, group_ext_id):
-        if not self.env.context.get("role_policy_has_groups_ok") or config.get(
-            "test_enable"
+        if (
+            not self.env.context.get("role_policy_has_groups_ok")
+            or config.get("test_enable")
+            or group_ext_id in self._role_policy_untouchable_groups()
         ):
             return super()._has_group(group_ext_id)
         else:
