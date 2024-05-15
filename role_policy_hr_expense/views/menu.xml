@@ -13,4 +13,11 @@
     <record id="hr_expense.menu_hr_expense_sheet_my_reports" model="ir.ui.menu">
         <field name="groups_id" eval="[(6, 0, [ref('base.group_user')])]" />
     </record>
+    <!-- make expense approval menu available for Team Approvers -->
+    <record id="hr_expense.menu_hr_expense_sheet_all_to_approve" model="ir.ui.menu">
+        <field
+            name="groups_id"
+            eval="[(6, 0, [ref('hr_expense.group_hr_expense_team_approver')])]"
+        />
+    </record>
 </odoo>
