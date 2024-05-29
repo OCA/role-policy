@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Noviat
+# Copyright 2020-2024 Noviat
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
 from odoo import api, models
@@ -31,7 +31,9 @@ class RolePolicyMenuActionCommon(models.AbstractModel):
 
     def write(self, vals):
         if not self.env.context.get("role_policy_init") and "groups_id" in vals:
+            # keep untouchable groups as well as role groups
             keep_ids = self._get_role_policy_group_keep_ids()
+            keep_ids += self.groups_id.filtered(lambda r: r.role).ids
             commands = filter_odoo_x2many_commands(vals.get("groups_id", []), keep_ids)
             if commands:
                 vals["groups_id"] = commands
