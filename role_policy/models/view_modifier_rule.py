@@ -254,13 +254,27 @@ class ViewModifierRule(models.Model):
                 rules_dict[key] += rule
         # Keep only rules with highest priority.
         # No rule for one of the user roles is considered highest priority
+        # whereby we eliminate the roles with no ACL for concerned model
         roles_nbr = len(user_roles)
         for key in rules_dict:
             key_rules = rules_dict[key]
             if len(key_rules) != roles_nbr:
-                continue
+                key_rules = self._get_rules_multiple_roles(key_rules, user_roles)
+                if not key_rules:
+                    continue
             rules += key_rules.sorted(lambda r: r.priority)[0]
         return rules
+
+    def _get_rules_multiple_roles(self, key_rules, user_roles):
+        rules = self.env["view.modifier.rule"]
+        model = key_rules.mapped("model_id")
+        if len(model) != 1:
+            return rules
+
+        for role in user_roles:
+            if not role.acl_ids.filtered(lambda r: r.model_id == model):
+               key_rules -= key_rules.filtered(lambda r: r.role_id == role)
+        return key_rules
 
     def _rule_signature_fields(self):
         return ["element", "view_id", "view_type"]
