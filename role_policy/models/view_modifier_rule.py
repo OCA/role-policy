@@ -229,6 +229,7 @@ class ViewModifierRule(models.Model):
             self.model_id = False
 
     def _get_rules(self, model, view_id, view_type=False, remove=False):
+        model = model or False
         rules = self.browse()
         if config.get("test_enable"):
             return rules
@@ -237,9 +238,8 @@ class ViewModifierRule(models.Model):
         dom = [
             ("role_id", "in", user_roles.ids),
             ("remove", "=", remove),
+            ("model", "=", model),
         ]
-        if model:
-            dom.append(("model", "=", model))
         if view_id:
             dom += ["|", ("view_id", "=", view_id), ("view_id", "=", False)]
         if view_type:
@@ -259,22 +259,35 @@ class ViewModifierRule(models.Model):
         for key in rules_dict:
             key_rules = rules_dict[key]
             if len(key_rules) != roles_nbr:
-                key_rules = self._get_rules_multiple_roles(key_rules, user_roles)
-                if not key_rules:
+                key_rules, roles_nbr = self._get_rules_multiple_roles(key_rules, user_roles)
+                if len(key_rules) != roles_nbr:
                     continue
             rules += key_rules.sorted(lambda r: r.priority)[0]
         return rules
 
     def _get_rules_multiple_roles(self, key_rules, user_roles):
+        roles_nbr = len(user_roles)
         rules = self.env["view.modifier.rule"]
         model = key_rules.mapped("model_id")
         if len(model) != 1:
-            return rules
+            return rules, roles_nbr
 
         for role in user_roles:
             if not role.acl_ids.filtered(lambda r: r.model_id == model):
-               key_rules -= key_rules.filtered(lambda r: r.role_id == role)
-        return key_rules
+               roles_nbr -= 1
+               # here we are coping with role policy misconfiguration since it
+               # doesn't make a lot of sense to configure a web.modifier.rule
+               # on a model for which the role has no ACL
+               # TODO:
+               # add logic to the _check_modifier() method to prevent this
+               invalid_rules = key_rules.filtered(lambda r: r.role_id == role)
+               if invalid_rules:
+                   key_rules -= invalid_rules
+                   _logger.error(
+                        "Role Policy configuration error, rule %s has been defined on model %s "
+                        "which makes no sense since role %s has no ACL for this model",
+                        invalid_rules, model.model, role.code)
+        return key_rules, roles_nbr
 
     def _rule_signature_fields(self):
         return ["element", "view_id", "view_type"]
