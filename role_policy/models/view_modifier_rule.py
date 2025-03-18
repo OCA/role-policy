@@ -262,7 +262,8 @@ class ViewModifierRule(models.Model):
                 key_rules, roles_nbr = self._get_rules_multiple_roles(key_rules, user_roles)
                 if len(key_rules) != roles_nbr:
                     continue
-            rules += key_rules.sorted(lambda r: r.priority)[0]
+            if key_rules:
+                rules += key_rules.sorted(lambda r: r.priority)[0]
         return rules
 
     def _get_rules_multiple_roles(self, key_rules, user_roles):
