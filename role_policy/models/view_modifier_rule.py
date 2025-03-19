@@ -213,9 +213,47 @@ class ViewModifierRule(models.Model):
                         % rule.id
                     )
 
-    @api.constrains("modifier_invisible", "modifier_readonly", "modifier_required")
+    @api.constrains(
+        "remove", "modifier_invisible", "modifier_readonly", "modifier_required"
+    )
     def _check_modifier(self):
-        """TODO: add checks on modifier syntax"""
+        """
+        Check if there are rules for roles which have no ACL for the model.
+        """
+        if self.env.context.get("skip_checks"):
+            return
+
+        for rec in self:
+            model = rec.model_id
+            if not model:
+                continue
+
+            untouchables = [
+                self.env.ref(x) for x in self._role_policy_untouchable_groups()
+            ]
+            untouchables = self.env["res.groups"]
+            for xmlid in self._role_policy_untouchable_groups():
+                untouchables += self.env.ref(xmlid)
+            if untouchables.model_access.filtered(lambda r: r.model_id == model):
+                continue
+
+            if self.env["ir.rule"].search_count([("model_id", "=", model.id)]):
+                continue
+
+            if not rec.role_id.acl_ids.filtered(lambda r: r.model_id == model):
+                raise UserError(
+                    _(
+                        "Role Policy configuration error !\n"
+                        "View Modifier Rule with ID %(rule_id)s has been defined on "
+                        "model '%(model)s' which makes no sense since role '%(role)s' "
+                        "has no ACL for this model."
+                    )
+                    % {
+                        "rule_id": rec.id,
+                        "model": model.model,
+                        "role": rec.role_id.code,
+                    }
+                )
 
     @api.onchange("view_id")
     def _onchange_view_id(self):
@@ -259,7 +297,9 @@ class ViewModifierRule(models.Model):
         for key in rules_dict:
             key_rules = rules_dict[key]
             if len(key_rules) != roles_nbr:
-                key_rules, roles_nbr = self._get_rules_multiple_roles(key_rules, user_roles)
+                key_rules, roles_nbr = self._get_rules_multiple_roles(
+                    key_rules, user_roles
+                )
                 if len(key_rules) != roles_nbr:
                     continue
             if key_rules:
@@ -274,20 +314,24 @@ class ViewModifierRule(models.Model):
             return rules, roles_nbr
 
         for role in user_roles:
-            if not role.acl_ids.filtered(lambda r: r.model_id == model):
-               roles_nbr -= 1
-               # here we are coping with role policy misconfiguration since it
-               # doesn't make a lot of sense to configure a web.modifier.rule
-               # on a model for which the role has no ACL
-               # TODO:
-               # add logic to the _check_modifier() method to prevent this
-               invalid_rules = key_rules.filtered(lambda r: r.role_id == role)
-               if invalid_rules:
-                   key_rules -= invalid_rules
-                   _logger.error(
-                        "Role Policy configuration error, rule %s has been defined on model %s "
-                        "which makes no sense since role %s has no ACL for this model",
-                        invalid_rules, model.model, role.code)
+            if not self.env.user.groups_id.model_access.filtered(
+                lambda r: r.model_id == model
+            ):
+                roles_nbr -= 1
+                # here we are coping with role policy misconfiguration since it
+                # doesn't make a lot of sense to configure a web.modifier.rule
+                # on a model for which the role has no ACL
+                invalid_rules = key_rules.filtered(lambda r: r.role_id == role)
+                if invalid_rules:
+                    key_rules -= invalid_rules
+                    _logger.error(
+                        "Role Policy configuration error, rule %s has been defined "
+                        "on model '%s' which makes no sense since role %s has no ACL "
+                        "for this model",
+                        invalid_rules,
+                        model.model,
+                        role.code,
+                    )
         return key_rules, roles_nbr
 
     def _rule_signature_fields(self):
