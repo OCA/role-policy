@@ -32,6 +32,11 @@ class RolePolicyImport(models.TransientModel):
         help="Specify the Excel sheet."
         "\nIf not specified all sheets will be imported.",
     )
+    skip_checks = fields.Boolean(
+        help="Skip Sanity Checks."
+        "\nSetting this option will increase import performance "
+        "by skipping a number of resource intensive rule sanity checks."
+    )
     warning = fields.Text(readonly=True)
     note = fields.Text("Log")
 
@@ -84,6 +89,7 @@ class RolePolicyImport(models.TransientModel):
         self.warning = False
 
     def role_policy_import(self):
+        self = self.with_context(skip_checks=self.skip_checks)
         time_start = time.time()
         role = self.env["res.role"].browse(self.env.context["active_id"])
         data = base64.decodestring(self.policy_data)

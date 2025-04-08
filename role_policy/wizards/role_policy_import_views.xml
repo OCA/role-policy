@@ -23,6 +23,7 @@
                     <field name="file_type" invisible="1" force_save="1" />
                     <field name="codepage" invisible="1" force_save="1" />
                     <field name="sheet" />
+                    <field name="skip_checks" />
                 </group>
                 <footer>
                     <button
